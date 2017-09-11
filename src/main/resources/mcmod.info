@@ -1,0 +1,20 @@
+[
+  {
+    "modid": "crutch",
+    "name": "Crutch",
+    "description": "Crutch - Bukkit and Forge for 1.10.2",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "Jewish"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": [
+      ""
+    ]
+  }
+]

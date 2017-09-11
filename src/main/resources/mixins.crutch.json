@@ -1,0 +1,9 @@
+{
+  "package": "ru.crutch",
+  "refmap": "mixins.myplugin.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "entity.projectile.MixinEntityTippedArrow"
+  ]
+}
