@@ -27,6 +27,10 @@ version = modVersion
 group = modGroup
 archivesBaseName = modBaseName
 
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
 minecraft {
     version = project.forgeVersion
     runDir = "run"
