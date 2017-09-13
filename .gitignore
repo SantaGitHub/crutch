@@ -1,5 +1,15 @@
 .gradle/
 .idea/
+.settings/
+.metadata/
+bin/
 build/
 out/
 svarka/
+run/
+eclipse/
+
+*.project
+*.classpath
+*.iml
+*.launch

@@ -14,9 +14,9 @@ public class CraftCustomEntity extends CraftEntity {
     public CraftCustomEntity(final CraftServer server,final net.minecraft.entity.Entity entity) {
         super(server, entity);
         this.entityClass = entity.getClass();
-        this.entityName = EntityRegistry.getCustomEntityTypeName(entityClass);
+        this.entityName = entity.getCustomNameTag();//EntityRegistry.getCustomEntityTypeName(entityClass);
         if (entityName == null)
-            entityName = entity.getCommandSenderEntity().getName();
+            entityName = entity.getName();
     }
 
     @Override

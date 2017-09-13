@@ -1,0 +1,2 @@
+FMLCorePlugin: ru.crutch.CrutchCorePlugin
+FMLCorePluginContainsFMLMod: true
