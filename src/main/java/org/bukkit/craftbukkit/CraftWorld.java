@@ -256,6 +256,9 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.WorldBorder;
 import net.minecraft.world.WorldServer;
 import org.bukkit.World;
+import ru.crutch.interfaces.server.management.IMixinPlayerChunkMapEntry;
+import ru.crutch.interfaces.world.IMixinChunk;
+import ru.crutch.interfaces.world.gen.IMixinChunkProviderServer;
 
 public class CraftWorld implements World
 {
@@ -324,7 +327,7 @@ public class CraftWorld implements World
     public boolean setSpawnLocation(final int x, final int y, final int z) {
         try {
             final Location previousLocation = this.getSpawnLocation();
-            this.world.worldInfo.setSpawn(new BlockPos(x, y, z));
+            this.world.getWorldInfo().setSpawn(new BlockPos(x, y, z));
             final SpawnChangeEvent event = new SpawnChangeEvent(this, previousLocation);
             this.server.getPluginManager().callEvent(event);
             return true;
@@ -336,7 +339,8 @@ public class CraftWorld implements World
     
     @Override
     public Chunk getChunkAt(final int x, final int z) {
-        return this.world.getChunkProvider().provideChunk(x, z).bukkitChunk;
+        net.minecraft.world.chunk.Chunk chunk = this.world.getChunkProvider().provideChunk(x,z);
+        return chunk == null ? null : ((IMixinChunk) chunk).getBukkitChunk();
     }
     
     @Override
@@ -355,7 +359,7 @@ public class CraftWorld implements World
         final Chunk[] craftChunks = new CraftChunk[chunks.length];
         for (int i = 0; i < chunks.length; ++i) {
             final net.minecraft.world.chunk.Chunk chunk = (net.minecraft.world.chunk.Chunk)chunks[i];
-            craftChunks[i] = chunk.bukkitChunk;
+            craftChunks[i] = ((IMixinChunk) chunk).getBukkitChunk();
         }
         return craftChunks;
     }
@@ -420,17 +424,17 @@ public class CraftWorld implements World
             return false;
         }
         final long chunkKey = ChunkPos.asLong(x, z);
-        this.world.getChunkProvider().droppedChunksSet.remove(chunkKey);
+        ((IMixinChunkProviderServer)this.world.getChunkProvider()).getdroppedChunksSet().remove(chunkKey);
         net.minecraft.world.chunk.Chunk chunk = null;
         chunk = this.world.getChunkProvider().chunkGenerator.provideChunk(x, z);
         final PlayerChunkMapEntry playerChunk = this.world.getPlayerChunkMap().getEntry(x, z);
         if (playerChunk != null) {
-            playerChunk.chunk = chunk;
+            ((IMixinPlayerChunkMapEntry) playerChunk).setChunk(chunk);
         }
         if (chunk != null) {
             this.world.getChunkProvider().id2ChunkMap.put(chunkKey, /*(Object)*/chunk);
             chunk.onChunkLoad();
-            chunk.loadNearby(this.world.getChunkProvider(), this.world.getChunkProvider().chunkGenerator, true);
+            ((IMixinChunk) chunk).loadNearby(this.world.getChunkProvider(), this.world.getChunkProvider().chunkGenerator, true);
             this.refreshChunk(x, z);
         }
         return chunk != null;
@@ -835,7 +839,7 @@ public class CraftWorld implements World
     
     @Override
     public Biome getBiome(final int x, final int z) {
-        return CraftBlock.biomeBaseToBiome(this.world.getBiome(new BlockPos(x, 0, z)));
+        return CraftBlock.biomeBaseToBiome(this.world.getBiomeForCoordsBody(new BlockPos(x, 0, z)));
     }
     
     @Override
@@ -852,12 +856,12 @@ public class CraftWorld implements World
     
     @Override
     public double getTemperature(final int x, final int z) {
-        return this.world.getBiome(new BlockPos(x, 0, z)).getTemperature();
+        return this.world.getBiomeForCoordsBody(new BlockPos(x, 0, z)).getTemperature();
     }
     
     @Override
     public double getHumidity(final int x, final int z) {
-        return this.world.getBiome(new BlockPos(x, 0, z)).getRainfall();
+        return this.world.getBiomeForCoordsBody(new BlockPos(x, 0, z)).getRainfall();
     }
     
     @Override
@@ -1378,7 +1382,7 @@ public class CraftWorld implements World
                 final net.minecraft.block.Block nmsBlock = CraftMagicNumbers.getBlock(block.getRelative(dir));
                 if (nmsBlock.getDefaultState().getMaterial().isSolid() || BlockRedstoneDiode.isDiode(nmsBlock.getDefaultState())) {
                     boolean taken = false;
-                    final AxisAlignedBB bb = EntityHanging.calculateBoundingBox(null, pos, CraftBlock.blockFaceToNotch(dir).getOpposite(), width, height);
+                    final AxisAlignedBB bb = calculateBoundingBox(null, pos, CraftBlock.blockFaceToNotch(dir).getOpposite(), width, height);
                     final List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(null, bb);
                     for (Iterator<Entity> it = list.iterator(); !taken && it.hasNext(); taken = true) {
                         final Entity e = it.next();
@@ -1429,7 +1433,51 @@ public class CraftWorld implements World
         }
         throw new IllegalArgumentException("Cannot spawn an entity for " + clazz.getName());
     }
-    
+
+    private AxisAlignedBB calculateBoundingBox(Entity entity, BlockPos pos, EnumFacing opposite, int width, int height) {
+    	double d0 = (double)pos.getX() + 0.5D;
+        double d1 = (double)pos.getY() + 0.5D;
+        double d2 = (double)pos.getZ() + 0.5D;
+        double d3 = 0.46875D;
+        double d4 = offs(width);
+        double d5 = offs(height);
+        d0 = d0 - (double)opposite.getFrontOffsetX() * 0.46875D;
+        d2 = d2 - (double)opposite.getFrontOffsetZ() * 0.46875D;
+        d1 = d1 + d5;
+        EnumFacing enumfacing = opposite.rotateYCCW();
+        d0 = d0 + d4 * (double)enumfacing.getFrontOffsetX();
+        d2 = d2 + d4 * (double)enumfacing.getFrontOffsetZ();
+         if(entity != null) {
+             entity.posX = d0;
+             entity.posY = d1;
+             entity.posZ = d2;
+            }
+        //this.posX = d0;
+        //this.posY = d1;
+        //this.posZ = d2;
+        double d6 = (double)width;
+        double d7 = (double)height;
+        double d8 = (double)width;
+
+        if (opposite.getAxis() == EnumFacing.Axis.Z)
+        {
+            d8 = 1.0D;
+        }
+        else
+        {
+            d6 = 1.0D;
+        }
+
+        d6 = d6 / 32.0D;
+        d7 = d7 / 32.0D;
+        d8 = d8 / 32.0D;
+        return new AxisAlignedBB(d0 - d6, d1 - d7, d2 - d8, d0 + d6, d1 + d7, d2 + d8);
+    }
+
+    private double offs(int i) {
+        return i % 32 == 0 ? 0.5D : 0.0D;
+    }
+
     public <T extends org.bukkit.entity.Entity> T addEntity(final Entity entity, final CreatureSpawnEvent.SpawnReason reason) throws IllegalArgumentException {
         Preconditions.checkArgument(entity != null, (Object)"Cannot spawn null entity");
         if (entity instanceof EntityLiving) {
@@ -1775,7 +1823,7 @@ public class CraftWorld implements World
             if (this.isChunkInUse(chunk.xPosition, chunk.zPosition)) {
                 continue;
             }
-            if (cps.droppedChunksSet.contains(ChunkPos.asLong(chunk.xPosition, chunk.zPosition))) {
+            if (cps.droppedChunksSet.contains(ChunkPos.chunkXZ2Int(chunk.xPosition, chunk.zPosition))) {
                 continue;
             }
             cps.unload(chunk);

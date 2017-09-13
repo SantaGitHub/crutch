@@ -32,10 +32,10 @@ public class CraftBanner extends CraftBlockState implements Banner
         this.patterns = new ArrayList<Pattern>();
         final CraftWorld world = (CraftWorld)block.getWorld();
         this.banner = (TileEntityBanner)world.getTileEntityAt(this.getX(), this.getY(), this.getZ());
-        this.base = DyeColor.getByDyeData((byte)this.banner.baseColor);
-        if (this.banner.patterns != null) {
-            for (int i = 0; i < this.banner.patterns.tagCount(); ++i) {
-                final NBTTagCompound p = this.banner.patterns.getCompoundTagAt(i);
+        this.base = DyeColor.getByDyeData((byte)this.banner.getBaseColor());
+        if (this.banner.getPatterns() != null) {
+            for (int i = 0; i < this.banner.getPatterns().tagCount(); ++i) {
+                final NBTTagCompound p = this.banner.getPatterns().getCompoundTagAt(i);
                 this.patterns.add(new Pattern(DyeColor.getByDyeData((byte)p.getInteger("Color")), PatternType.getByIdentifier(p.getString("Pattern"))));
             }
         }
@@ -45,10 +45,10 @@ public class CraftBanner extends CraftBlockState implements Banner
         super(material);
         this.patterns = new ArrayList<Pattern>();
         this.banner = te;
-        this.base = DyeColor.getByDyeData((byte)this.banner.baseColor);
-        if (this.banner.patterns != null) {
-            for (int i = 0; i < this.banner.patterns.tagCount(); ++i) {
-                final NBTTagCompound p = this.banner.patterns.getCompoundTagAt(i);
+        this.base = DyeColor.getByDyeData((byte)this.banner.getBaseColor());
+        if (this.banner.getPatterns() != null) {
+            for (int i = 0; i < this.banner.getPatterns().tagCount(); ++i) {
+                final NBTTagCompound p = this.banner.getPatterns().getCompoundTagAt(i);
                 this.patterns.add(new Pattern(DyeColor.getByDyeData((byte)p.getInteger("Color")), PatternType.getByIdentifier(p.getString("Pattern"))));
             }
         }
@@ -103,7 +103,8 @@ public class CraftBanner extends CraftBlockState implements Banner
     public boolean update(final boolean force, final boolean applyPhysics) {
         final boolean result = !this.isPlaced() || super.update(force, applyPhysics);
         if (result) {
-            this.banner.baseColor = this.base.getDyeData();
+            //TODO banner Patterns(Protected) - use Mixin
+            //this.banner.getPatterns() = this.base.getDyeData();
             final NBTTagList newPatterns = new NBTTagList();
             for (final Pattern p : this.patterns) {
                 final NBTTagCompound compound = new NBTTagCompound();
@@ -111,7 +112,7 @@ public class CraftBanner extends CraftBlockState implements Banner
                 compound.setString("Pattern", p.getPattern().getIdentifier());
                 newPatterns.appendTag(compound);
             }
-            this.banner.patterns = newPatterns;
+            //this.banner.set = newPatterns;
             this.banner.markDirty();
         }
         return result;

@@ -1,4 +1,4 @@
-package ru.crutch.interfaces;
+package ru.crutch.interfaces.world;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.world.chunk.IChunkProvider;

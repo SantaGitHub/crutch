@@ -4,8 +4,6 @@
 
 package org.bukkit.craftbukkit.block;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.WorldProvider;
 import org.bukkit.plugin.Plugin;
 import java.util.List;
 import org.bukkit.metadata.MetadataValue;
@@ -23,6 +21,7 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.craftbukkit.CraftChunk;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.block.BlockState;
+import ru.crutch.interfaces.world.IMixinWorld;
 
 public class CraftBlockState implements BlockState
 {
@@ -63,11 +62,11 @@ public class CraftBlockState implements BlockState
     }
     
     public static CraftBlockState getBlockState(final World world, final int x, final int y, final int z) {
-        return new CraftBlockState(world.getWorld().getBlockAt(x, y, z));
+        return new CraftBlockState(((IMixinWorld) world).getWorld().getBlockAt(x, y, z));
     }
     
     public static CraftBlockState getBlockState(final World world, final int x, final int y, final int z, final int flag) {
-        return new CraftBlockState(world.getWorld().getBlockAt(x, y, z), flag);
+        return new CraftBlockState(((IMixinWorld) world).getWorld().getBlockAt(x, y, z), flag);
     }
     
     @Override

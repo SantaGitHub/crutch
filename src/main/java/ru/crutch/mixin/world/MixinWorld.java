@@ -1,4 +1,4 @@
-package ru.crutch.mixin;
+package ru.crutch.mixin.world;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
