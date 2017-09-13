@@ -14,6 +14,7 @@ import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
 import org.bukkit.Bukkit;
+import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.event.CraftEventFactory;
@@ -25,6 +26,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.entity.IMixinEntity;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld implements IMixinWorld{
@@ -51,6 +55,9 @@ public abstract class MixinWorld implements IMixinWorld{
 
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
 
+
+    //public boolean captureBlockStates = false;
+    //public boolean captureTreeGeneration = false;
     private ChunkGenerator generator;
     private CraftWorld craftWorld;
     private IBlockState iblockstate;
@@ -171,6 +178,11 @@ public abstract class MixinWorld implements IMixinWorld{
         return real_spawnEntityInWorld(entity);
     }
 
+    @Override
+    public boolean spawnEntityInWorld(Entity entity) {
+        return addEntity(entity, SpawnReason.DEFAULT);
+    }
+
     // must be public to be compatible with some mods using world proxy
     public abstract boolean real_spawnEntityInWorld(Entity entity);
     //TODO setData and getData
@@ -232,7 +244,5 @@ public abstract class MixinWorld implements IMixinWorld{
         this.iblockstate = this.getBlockState(new BlockPos(x,y,z));
         return (org.bukkit.block.Block)this.iblockstate.getBlock();
     }
-
-
 
 }

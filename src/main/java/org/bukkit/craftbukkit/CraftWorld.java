@@ -4,6 +4,7 @@
 
 package org.bukkit.craftbukkit;
 
+import net.minecraftforge.common.util.BlockSnapshot;
 import org.bukkit.metadata.MetadataStoreBase;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -256,9 +257,16 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.WorldBorder;
 import net.minecraft.world.WorldServer;
 import org.bukkit.World;
+import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.entity.item.IMixinEntityItem;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
+import ru.crutch.interfaces.entity.projectile.IMixinEntityTippedArrow;
+import ru.crutch.interfaces.server.management.IMixinPlayerChunkMap;
 import ru.crutch.interfaces.server.management.IMixinPlayerChunkMapEntry;
 import ru.crutch.interfaces.world.IMixinChunk;
+import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.world.gen.IMixinChunkProviderServer;
+import ru.crutch.interfaces.world.storage.IMixinSaveHandler;
 
 public class CraftWorld implements World
 {
@@ -457,7 +465,7 @@ public class CraftWorld implements World
     
     @Override
     public boolean isChunkInUse(final int x, final int z) {
-        return this.world.getPlayerChunkMap().isChunkInUse(x, z);
+        return ((IMixinPlayerChunkMap) this.world.getPlayerChunkMap()).isChunkInUse(x, z);
     }
     
     @Override
@@ -477,7 +485,7 @@ public class CraftWorld implements World
     @Override
     public void loadChunk(final Chunk chunk) {
         this.loadChunk(chunk.getX(), chunk.getZ());
-        ((CraftChunk)this.getChunkAt(chunk.getX(), chunk.getZ())).getHandle().bukkitChunk = chunk;
+        ((IMixinChunk) ((CraftChunk)this.getChunkAt(chunk.getX(), chunk.getZ())).getHandle()).setBukkitChunk((CraftChunk) chunk);
     }
     
     public WorldServer getHandle() {
@@ -489,9 +497,9 @@ public class CraftWorld implements World
         Validate.notNull((Object)item, "Cannot drop a Null item.");
         Validate.isTrue(item.getTypeId() != 0, "Cannot drop AIR.");
         final EntityItem entity = new EntityItem(this.world, loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(item));
-        entity.delayBeforeCanPickup = 10;
-        this.world.addEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
-        return new CraftItem(this.world.getServer(), entity);
+        ((IMixinEntityItem) entity).setdelayBeforeCanPickup(10);
+        ((IMixinWorld) this.world).addEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
+        return new CraftItem(((IMixinWorld) this.world).getServer(), entity);
     }
     
     private static void randomLocationWithinBlock(final Location loc, final double xs, final double ys, final double zs) {
@@ -542,7 +550,7 @@ public class CraftWorld implements World
         EntityArrow arrow;
         if (TippedArrow.class.isAssignableFrom(clazz)) {
             arrow = new EntityTippedArrow(this.world);
-            ((EntityTippedArrow)arrow).setType(CraftPotionUtil.fromBukkit(new PotionData(PotionType.WATER, false, false)));
+            ((IMixinEntityTippedArrow)arrow).setType(CraftPotionUtil.fromBukkit(new PotionData(PotionType.WATER, false, false)));
         }
         else if (SpectralArrow.class.isAssignableFrom(clazz)) {
             arrow = new EntitySpectralArrow(this.world);
@@ -552,8 +560,8 @@ public class CraftWorld implements World
         }
         arrow.setLocationAndAngles(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         arrow.setThrowableHeading(velocity.getX(), velocity.getY(), velocity.getZ(), speed, spread);
-        this.world.spawnEntityInWorld(arrow);
-        return (T)arrow.getBukkitEntity();
+        ((IMixinWorld) this.world).spawnEntityInWorld(arrow);
+        return   (T) ((IMixinEntity)arrow).getBukkitEntity();
     }
     
     @Override
@@ -662,29 +670,29 @@ public class CraftWorld implements World
     
     @Override
     public boolean generateTree(final Location loc, final TreeType type, final BlockChangeDelegate delegate) {
-        this.world.captureTreeGeneration = true;
-        this.world.captureBlockStates = true;
+        //((IMixinWorld) this.world).captureTreeGeneration = true; //TODO
+        //((IMixinWorld) this.world).captureBlockStates = true;
         final boolean grownTree = this.generateTree(loc, type);
-        this.world.captureBlockStates = false;
-        this.world.captureTreeGeneration = false;
+        //((IMixinWorld) this.world).captureBlockStates = false;
+        //((IMixinWorld) this.world).captureTreeGeneration = false;
         if (grownTree) {
-            for (final BlockState blockstate : this.world.capturedBlockStates) {
-                final int x = blockstate.getX();
-                final int y = blockstate.getY();
-                final int z = blockstate.getZ();
+            for (BlockSnapshot blocksnapshot : this.world.capturedBlockSnapshots) {
+                final int x = blocksnapshot.getPos().getX();
+                final int y = blocksnapshot.getPos().getY();
+                final int z = blocksnapshot.getPos().getZ();
                 final BlockPos position = new BlockPos(x, y, z);
                 final IBlockState oldBlock = this.world.getBlockState(position);
-                final int typeId = blockstate.getTypeId();
-                final int data = blockstate.getRawData();
-                final int flag = ((CraftBlockState)blockstate).getFlag();
+                final int typeId = net.minecraft.block.Block.getIdFromBlock(blocksnapshot.getCurrentBlock().getBlock());
+                final int data = blocksnapshot.getMeta();
+                final int flag = blocksnapshot.getFlag();
                 delegate.setTypeIdAndData(x, y, z, typeId, data);
                 final IBlockState newBlock = this.world.getBlockState(position);
                 this.world.markAndNotifyBlock(position, null, oldBlock, newBlock, flag);
             }
-            this.world.capturedBlockStates.clear();
+            this.world.capturedBlockSnapshots.clear();
             return true;
         }
-        this.world.capturedBlockStates.clear();
+        this.world.capturedBlockSnapshots.clear();
         return false;
     }
     
@@ -694,17 +702,17 @@ public class CraftWorld implements World
     
     @Override
     public String getName() {
-        return this.world.worldInfo.getWorldName();
+        return this.world.getWorldInfo().getWorldName();
     }
     
     @Deprecated
     public long getId() {
-        return this.world.worldInfo.getSeed();
+        return this.world.getWorldInfo().getSeed();
     }
     
     @Override
     public UUID getUID() {
-        return this.world.getSaveHandler().getUUID();
+        return ((IMixinSaveHandler) this.world.getSaveHandler()).getUUID();
     }
     
     @Override
@@ -743,7 +751,7 @@ public class CraftWorld implements World
             if (cp.getHandle().connection == null) {
                 continue;
             }
-            cp.getHandle().connection.sendPacket(new SPacketTimeUpdate(cp.getHandle().worldObj.getTotalWorldTime(), cp.getHandle().getPlayerTime(), cp.getHandle().worldObj.getGameRules().getBoolean("doDaylightCycle")));
+            cp.getHandle().connection.sendPacket(new SPacketTimeUpdate(cp.getHandle().world.getTotalWorldTime(), ((IMixinEntityPlayerMP) cp.getHandle()).getPlayerTime(), cp.getHandle().world.getGameRules().getBoolean("doDaylightCycle")));
         }
     }
     

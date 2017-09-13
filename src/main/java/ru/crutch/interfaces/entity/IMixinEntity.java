@@ -1,11 +1,15 @@
 package ru.crutch.interfaces.entity;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.network.datasync.EntityDataManager;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.projectiles.ProjectileSource;
 
 public interface IMixinEntity {
+
+    EntityDataManager getDataManager();
+
     int getFireTicks();
 
     void setFireTicks(int ticks);

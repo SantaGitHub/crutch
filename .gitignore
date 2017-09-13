@@ -13,3 +13,4 @@ eclipse/
 *.classpath
 *.iml
 *.launch
+lib/

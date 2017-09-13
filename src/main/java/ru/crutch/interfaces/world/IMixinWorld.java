@@ -1,7 +1,6 @@
 package ru.crutch.interfaces.world;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.world.chunk.IChunkProvider;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -13,6 +12,10 @@ public interface IMixinWorld {
     CraftWorld getWorld();
 
     CraftServer getServer();
+
+    boolean addEntity(Entity entity, CreatureSpawnEvent.SpawnReason spawnReason);
+
+    boolean spawnEntityInWorld(Entity entity);
 
     boolean setTypeId(int x, int y, int z, int typeId);
 

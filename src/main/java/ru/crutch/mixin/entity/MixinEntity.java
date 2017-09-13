@@ -1,6 +1,7 @@
 package ru.crutch.mixin.entity;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import org.bukkit.Location;
@@ -12,7 +13,7 @@ import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.entity.IMixinEntity;
 
 @Mixin(net.minecraft.entity.Entity.class)
-public abstract class MixinEntity implements IMixinEntity{
+public class MixinEntity implements IMixinEntity{
     @Shadow private int fire;
     @Shadow public World world;
     @Shadow public float rotationYaw;
@@ -24,17 +25,16 @@ public abstract class MixinEntity implements IMixinEntity{
     @Shadow public double posY;
     @Shadow public double posZ;
 
-    @Shadow public abstract void setLocationAndAngles(double x, double y, double z, float yaw, float pitch);
-    @Shadow public abstract void setFire(int p_70015_1_);
-    @Shadow public abstract boolean attackEntityFrom(DamageSource p_70097_1_, float p_70097_2_);
-    @Shadow public abstract int getAir();
-    @Shadow public abstract void setAir(int p_70050_1_);
-    @Shadow protected abstract void setBeenAttacked();
-
+    @Shadow public EntityDataManager dataManager;
 
     protected CraftEntity bukkitEntity;
     public ProjectileSource projectileSource;
     public String spawnReason;
+
+    @Override
+    public EntityDataManager getDataManager() {
+        return this.dataManager;
+    }
 
     @Override
     public int getFireTicks()
@@ -78,6 +78,11 @@ public abstract class MixinEntity implements IMixinEntity{
     public void setProjectileSource(ProjectileSource projectileSource)
     {
         this.projectileSource = projectileSource;
+    }
+
+    @Override
+    public void setPassengerOf(Entity entity) {
+
     }
 
     @Override
