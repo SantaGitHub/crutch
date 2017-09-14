@@ -10,6 +10,10 @@ public interface IMixinEntity {
 
     EntityDataManager getDataManager();
 
+    void setForceExplosionKnockback(boolean flag);
+
+    boolean getForceExplosionKnockback();
+
     int getFireTicks();
 
     void setFireTicks(int ticks);
