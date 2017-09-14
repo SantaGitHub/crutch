@@ -18,6 +18,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.event.CraftEventFactory;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.generator.ChunkGenerator;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,6 +40,7 @@ public abstract class MixinWorld implements IMixinWorld{
     public boolean restoringBlockSnapshots;
     @Shadow
     protected IChunkProvider chunkProvider;
+    private boolean pvpMode;
 
     @Shadow
     protected abstract IChunkProvider createChunkProvider();
@@ -56,6 +58,25 @@ public abstract class MixinWorld implements IMixinWorld{
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
 
 
+    @Override
+    public void setProvider(WorldProvider provider){
+        this.provider = provider;
+    }
+
+    @Override
+    public WorldProvider getProvider(){
+        return this.provider;
+    }
+
+    @Override
+    public boolean getpvpMode(){
+        return this.pvpMode;
+    }
+    @Override
+    public void setpvpMode(boolean flag){
+        this.pvpMode = flag;
+    }
+    
     //public boolean captureBlockStates = false;
     //public boolean captureTreeGeneration = false;
     private ChunkGenerator generator;
@@ -133,8 +154,8 @@ public abstract class MixinWorld implements IMixinWorld{
         return (CraftServer) Bukkit.getServer();
     }
 
-
-    public boolean addEntity(Entity entity, SpawnReason spawnReason)
+    @Override
+    public boolean addEntity(Entity entity, CreatureSpawnEvent.SpawnReason spawnReason)
     {
         if(entity == null || (this.restoringBlockSnapshots && entity instanceof EntityItem))
             return false;

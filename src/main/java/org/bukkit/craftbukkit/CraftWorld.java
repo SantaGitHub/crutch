@@ -260,10 +260,12 @@ import org.bukkit.World;
 import ru.crutch.interfaces.entity.IMixinEntity;
 import ru.crutch.interfaces.entity.item.IMixinEntityItem;
 import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
+import ru.crutch.interfaces.entity.projectile.IMixinEntityFireball;
 import ru.crutch.interfaces.entity.projectile.IMixinEntityTippedArrow;
 import ru.crutch.interfaces.server.management.IMixinPlayerChunkMap;
 import ru.crutch.interfaces.server.management.IMixinPlayerChunkMapEntry;
 import ru.crutch.interfaces.world.IMixinChunk;
+import ru.crutch.interfaces.world.IMixinExplosion;
 import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.world.gen.IMixinChunkProviderServer;
 import ru.crutch.interfaces.world.storage.IMixinSaveHandler;
@@ -767,7 +769,7 @@ public class CraftWorld implements World
     
     @Override
     public boolean createExplosion(final double x, final double y, final double z, final float power, final boolean setFire, final boolean breakBlocks) {
-        return !this.world.newExplosion(null, x, y, z, power, setFire, breakBlocks).wasCanceled;
+        return !((IMixinExplosion) this.world.newExplosion(null, x, y, z, power, setFire, breakBlocks)).getWasCanceled();
     }
     
     @Override
@@ -790,15 +792,15 @@ public class CraftWorld implements World
             this.environment = env;
             switch (env) {
                 case NORMAL: {
-                    this.world.provider = new WorldProviderSurface();
+                    ((IMixinWorld) this.world).setProvider(new WorldProviderSurface());
                     break;
                 }
                 case NETHER: {
-                    this.world.provider = new WorldProviderHell();
+                    ((IMixinWorld) this.world).setProvider(new WorldProviderHell());
                     break;
                 }
                 case THE_END: {
-                    this.world.provider = new WorldProviderEnd();
+                    ((IMixinWorld) this.world).setProvider( new WorldProviderEnd());
                     break;
                 }
             }
@@ -878,7 +880,7 @@ public class CraftWorld implements World
         for (final Object o : this.world.loadedEntityList) {
             if (o instanceof Entity) {
                 final Entity mcEnt = (Entity)o;
-                final org.bukkit.entity.Entity bukkitEntity = mcEnt.getBukkitEntity();
+                final org.bukkit.entity.Entity bukkitEntity = ((IMixinEntity) mcEnt).getBukkitEntity();
                 if (bukkitEntity == null) {
                     continue;
                 }
@@ -894,7 +896,7 @@ public class CraftWorld implements World
         for (final Object o : this.world.loadedEntityList) {
             if (o instanceof Entity) {
                 final Entity mcEnt = (Entity)o;
-                final org.bukkit.entity.Entity bukkitEntity = mcEnt.getBukkitEntity();
+                final org.bukkit.entity.Entity bukkitEntity = ((IMixinEntity) mcEnt).getBukkitEntity();
                 if (bukkitEntity == null || !(bukkitEntity instanceof LivingEntity)) {
                     continue;
                 }
@@ -915,7 +917,7 @@ public class CraftWorld implements World
         final Collection<T> list = new ArrayList<T>();
         for (final Object entity : this.world.loadedEntityList) {
             if (entity instanceof Entity) {
-                final org.bukkit.entity.Entity bukkitEntity = ((Entity)entity).getBukkitEntity();
+                final org.bukkit.entity.Entity bukkitEntity = ((IMixinEntity)((Entity)entity)).getBukkitEntity();
                 if (bukkitEntity == null) {
                     continue;
                 }
@@ -934,7 +936,7 @@ public class CraftWorld implements World
         final Collection<org.bukkit.entity.Entity> list = new ArrayList<org.bukkit.entity.Entity>();
         for (final Object entity : this.world.loadedEntityList) {
             if (entity instanceof Entity) {
-                final org.bukkit.entity.Entity bukkitEntity = ((Entity)entity).getBukkitEntity();
+                final org.bukkit.entity.Entity bukkitEntity = ((IMixinEntity)((Entity)entity)).getBukkitEntity();
                 if (bukkitEntity == null) {
                     continue;
                 }
@@ -959,7 +961,7 @@ public class CraftWorld implements World
         final List<Entity> entityList = this.getHandle().getEntitiesInAABBexcluding(null, bb, null);
         final List<org.bukkit.entity.Entity> bukkitEntityList = new ArrayList<org.bukkit.entity.Entity>(entityList.size());
         for (final Object entity : entityList) {
-            bukkitEntityList.add(((Entity)entity).getBukkitEntity());
+            bukkitEntityList.add(((IMixinEntity)((Entity)entity)).getBukkitEntity());
         }
         return bukkitEntityList;
     }
@@ -968,7 +970,7 @@ public class CraftWorld implements World
     public List<Player> getPlayers() {
         final List<Player> list = new ArrayList<Player>(this.world.playerEntities.size());
         for (final EntityPlayer human : this.world.playerEntities) {
-            final HumanEntity bukkitEntity = human.getBukkitEntity();
+            final HumanEntity bukkitEntity = (HumanEntity) ((IMixinEntity) human).getBukkitEntity();
             if (bukkitEntity != null && bukkitEntity instanceof Player) {
                 list.add((Player)bukkitEntity);
             }
@@ -1002,7 +1004,7 @@ public class CraftWorld implements World
     
     @Override
     public void setDifficulty(final Difficulty difficulty) {
-        this.getHandle().worldInfo.setDifficulty(EnumDifficulty.getDifficultyEnum(difficulty.getValue()));
+        this.getHandle().getWorldInfo().setDifficulty(EnumDifficulty.getDifficultyEnum(difficulty.getValue()));
     }
     
     @Override
@@ -1016,57 +1018,57 @@ public class CraftWorld implements World
     
     @Override
     public boolean hasStorm() {
-        return this.world.worldInfo.isRaining();
+        return this.world.getWorldInfo().isRaining();
     }
     
     @Override
     public void setStorm(final boolean hasStorm) {
-        this.world.worldInfo.setRaining(hasStorm);
+        this.world.getWorldInfo().setRaining(hasStorm);
     }
     
     @Override
     public int getWeatherDuration() {
-        return this.world.worldInfo.getRainTime();
+        return this.world.getWorldInfo().getRainTime();
     }
     
     @Override
     public void setWeatherDuration(final int duration) {
-        this.world.worldInfo.setRainTime(duration);
+        this.world.getWorldInfo().setRainTime(duration);
     }
     
     @Override
     public boolean isThundering() {
-        return this.world.worldInfo.isThundering();
+        return this.world.getWorldInfo().isThundering();
     }
     
     @Override
     public void setThundering(final boolean thundering) {
-        this.world.worldInfo.setThundering(thundering);
+        this.world.getWorldInfo().setThundering(thundering);
     }
     
     @Override
     public int getThunderDuration() {
-        return this.world.worldInfo.getThunderTime();
+        return this.world.getWorldInfo().getThunderTime();
     }
     
     @Override
     public void setThunderDuration(final int duration) {
-        this.world.worldInfo.setThunderTime(duration);
+        this.world.getWorldInfo().setThunderTime(duration);
     }
     
     @Override
     public long getSeed() {
-        return this.world.worldInfo.getSeed();
+        return this.world.getWorldInfo().getSeed();
     }
     
     @Override
     public boolean getPVP() {
-        return this.world.pvpMode;
+        return ((IMixinWorld) this.world).getpvpMode();
     }
     
     @Override
     public void setPVP(final boolean pvp) {
-        this.world.pvpMode = pvp;
+        ((IMixinWorld) this.world).setpvpMode(pvp);
     }
     
     public void playEffect(final Player player, final Effect effect, final int data) {
@@ -1130,8 +1132,8 @@ public class CraftWorld implements World
         Validate.isTrue(material.isBlock(), "Material must be a block");
         final EntityFallingBlock entity = new EntityFallingBlock(this.world, location.getX(), location.getY(), location.getZ(), CraftMagicNumbers.getBlock(material).getStateFromMeta(data));
         entity.fallTime = 1;
-        this.world.addEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
-        return (FallingBlock)entity.getBukkitEntity();
+        ((IMixinWorld) this.world).addEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
+        return  (FallingBlock)((IMixinEntity) entity).getBukkitEntity();
     }
     
     @Override
@@ -1165,7 +1167,7 @@ public class CraftWorld implements World
             else if (Arrow.class.isAssignableFrom(clazz)) {
                 if (TippedArrow.class.isAssignableFrom(clazz)) {
                     entity = new EntityTippedArrow(this.world);
-                    ((EntityTippedArrow)entity).setType(CraftPotionUtil.fromBukkit(new PotionData(PotionType.WATER, false, false)));
+                    ((IMixinEntityTippedArrow)entity).setType(CraftPotionUtil.fromBukkit(new PotionData(PotionType.WATER, false, false)));
                 }
                 else if (SpectralArrow.class.isAssignableFrom(clazz)) {
                     entity = new EntitySpectralArrow(this.world);
@@ -1206,7 +1208,7 @@ public class CraftWorld implements World
                 }
                 entity.setLocationAndAngles(x, y, z, yaw, pitch);
                 final Vector direction = location.getDirection().multiply(10);
-                ((EntityFireball)entity).setDirection(direction.getX(), direction.getY(), direction.getZ());
+                ((IMixinEntityFireball)entity).setDirection(direction.getX(), direction.getY(), direction.getZ());
             }
             else if (ShulkerBullet.class.isAssignableFrom(clazz)) {
                 entity = new EntityShulkerBullet(this.world);
@@ -1491,8 +1493,8 @@ public class CraftWorld implements World
         if (entity instanceof EntityLiving) {
             ((EntityLiving)entity).onInitialSpawn(this.getHandle().getDifficultyForLocation(new BlockPos(entity)), null);
         }
-        this.world.addEntity(entity, reason);
-        return (T)entity.getBukkitEntity();
+        ((IMixinWorld) this.world).addEntity(entity, reason);
+        return (T)((IMixinEntity) entity).getBukkitEntity();
     }
     
     public <T extends org.bukkit.entity.Entity> T spawn(final Location location, final Class<T> clazz, final CreatureSpawnEvent.SpawnReason reason) throws IllegalArgumentException {
@@ -1831,7 +1833,7 @@ public class CraftWorld implements World
             if (this.isChunkInUse(chunk.xPosition, chunk.zPosition)) {
                 continue;
             }
-            if (cps.droppedChunksSet.contains(ChunkPos.chunkXZ2Int(chunk.xPosition, chunk.zPosition))) {
+            if (cps.droppedChunksSet.contains(ChunkPos.asLong(chunk.xPosition, chunk.zPosition))) {
                 continue;
             }
             cps.unload(chunk);

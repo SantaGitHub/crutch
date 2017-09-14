@@ -8,7 +8,9 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.projectiles.ProjectileSource;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.Inject;
 import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.entity.IMixinEntity;
 
@@ -27,9 +29,20 @@ public class MixinEntity implements IMixinEntity{
 
     @Shadow public EntityDataManager dataManager;
 
+
+    public boolean forceExplosionKnockback = false;
     protected CraftEntity bukkitEntity;
     public ProjectileSource projectileSource;
     public String spawnReason;
+
+
+    public boolean getForceExplosionKnockback(){
+        return this.forceExplosionKnockback;
+    }
+
+    public void setForceExplosionKnockback(boolean flag){
+        this.forceExplosionKnockback = flag;
+    }
 
     @Override
     public EntityDataManager getDataManager() {
