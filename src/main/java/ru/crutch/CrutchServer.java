@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = CrutchServer.MOD_ID, name = CrutchServer.MOD_NAME, version = CrutchServer.VERSION)
+@Mod(modid = CrutchServer.MOD_ID, name = CrutchServer.MOD_NAME, version = CrutchServer.VERSION, serverSideOnly = true)
 public class CrutchServer {
 	public static final Logger LOG = LogManager.getLogger();
 	public static final boolean DEBUG = true;

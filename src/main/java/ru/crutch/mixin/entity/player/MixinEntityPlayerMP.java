@@ -1,5 +1,7 @@
 package ru.crutch.mixin.entity.player;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.server.SPacketChangeGameState;
 import net.minecraft.util.math.MathHelper;
@@ -7,94 +9,101 @@ import net.minecraft.world.World;
 import org.bukkit.WeatherType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+
+import com.mojang.authlib.GameProfile;
+
 import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 
-@Mixin(net.minecraft.entity.player.EntityPlayerMP.class)
-public class MixinEntityPlayerMP implements IMixinEntityPlayerMP {
+@Mixin(EntityPlayerMP.class)
+public abstract class MixinEntityPlayerMP extends EntityPlayer implements IMixinEntityPlayerMP {
 
-    public long timeOffset = 0;
-    public boolean relativeTime = true;
-    public World world;
-    public WeatherType weather = null;
-    @Shadow
-    public NetHandlerPlayServer connection;
-    private float pluginRainPosition;
-    private float pluginRainPositionPrevious;
+	public MixinEntityPlayerMP(World worldIn, GameProfile gameProfileIn) {
+		super(worldIn, gameProfileIn);
+	}
 
-    @Override
-    public long getPlayerTime() {
-        if (this.relativeTime) {
-            // Adds timeOffset to the current server time.
-            return this.world.getWorldTime() + this.timeOffset;
-        } else {
-            // Adds timeOffset to the beginning of this day.
-            return this.world.getWorldTime() - (this.world.getWorldTime() % 24000) + this.timeOffset;
-        }
-    }
+	public long timeOffset = 0;
+	public boolean relativeTime = true;
+	public World world;
+	public WeatherType weather = null;
+	@Shadow
+	public NetHandlerPlayServer connection;
+	private float pluginRainPosition;
+	private float pluginRainPositionPrevious;
 
-    @Override
-    public WeatherType getPlayerWeather() {
-        return this.weather;
-    }
+	@Override
+	public long getPlayerTime() {
+		if (this.relativeTime) {
+			// Adds timeOffset to the current server time.
+			return this.world.getWorldTime() + this.timeOffset;
+		} else {
+			// Adds timeOffset to the beginning of this day.
+			return this.world.getWorldTime() - (this.world.getWorldTime() % 24000) + this.timeOffset;
+		}
+	}
 
-    @Override
-    public void setPlayerWeather(WeatherType type, boolean plugin) {
-        if (!plugin && this.weather != null) {
-            return;
-        }
+	@Override
+	public WeatherType getPlayerWeather() {
+		return this.weather;
+	}
 
-        if (plugin) {
-            this.weather = type;
-        }
+	@Override
+	public void setPlayerWeather(WeatherType type, boolean plugin) {
+		if (!plugin && this.weather != null) {
+			return;
+		}
 
-        if (type == WeatherType.DOWNFALL) {
-            this.connection.sendPacket(new SPacketChangeGameState(2, 0));
-        } else {
-            this.connection.sendPacket(new SPacketChangeGameState(1, 0));
-        }
-    }
+		if (plugin) {
+			this.weather = type;
+		}
 
-    @Override
-    public void updateWeather(float oldRain, float newRain, float oldThunder, float newThunder) {
-        if (this.weather == null) {
-            // Vanilla
-            if (oldRain != newRain) {
-                this.connection.sendPacket(new SPacketChangeGameState(7, newRain));
-            }
-        } else {
-            // Plugin
-            if (pluginRainPositionPrevious != pluginRainPosition) {
-                this.connection.sendPacket(new SPacketChangeGameState(7, pluginRainPosition));
-            }
-        }
+		if (type == WeatherType.DOWNFALL) {
+			this.connection.sendPacket(new SPacketChangeGameState(2, 0));
+		} else {
+			this.connection.sendPacket(new SPacketChangeGameState(1, 0));
+		}
+	}
 
-        if (oldThunder != newThunder) {
-            if (weather == WeatherType.DOWNFALL || weather == null) {
-                this.connection.sendPacket(new SPacketChangeGameState(8, newThunder));
-            } else {
-                this.connection.sendPacket(new SPacketChangeGameState(8, 0));
-            }
-        }
-    }
+	@Override
+	public void updateWeather(float oldRain, float newRain, float oldThunder, float newThunder) {
+		if (this.weather == null) {
+			// Vanilla
+			if (oldRain != newRain) {
+				this.connection.sendPacket(new SPacketChangeGameState(7, newRain));
+			}
+		} else {
+			// Plugin
+			if (pluginRainPositionPrevious != pluginRainPosition) {
+				this.connection.sendPacket(new SPacketChangeGameState(7, pluginRainPosition));
+			}
+		}
 
+		if (oldThunder != newThunder) {
+			if (weather == WeatherType.DOWNFALL || weather == null) {
+				this.connection.sendPacket(new SPacketChangeGameState(8, newThunder));
+			} else {
+				this.connection.sendPacket(new SPacketChangeGameState(8, 0));
+			}
+		}
+	}
 
-    @Override
-    public void tickWeather() {
-        if (this.weather == null) return;
+	@Override
+	public void tickWeather() {
+		if (this.weather == null)
+			return;
 
-        pluginRainPositionPrevious = pluginRainPosition;
-        if (weather == WeatherType.DOWNFALL) {
-            pluginRainPosition += 0.01;
-        } else {
-            pluginRainPosition -= 0.01;
-        }
+		pluginRainPositionPrevious = pluginRainPosition;
+		if (weather == WeatherType.DOWNFALL) {
+			pluginRainPosition += 0.01;
+		} else {
+			pluginRainPosition -= 0.01;
+		}
 
-        pluginRainPosition = MathHelper.clamp(pluginRainPosition, 0.0F, 1.0F);
-    }
+		pluginRainPosition = MathHelper.clamp(pluginRainPosition, 0.0F, 1.0F);
+	}
 
-    @Override
-    public void resetPlayerWeather() {
-        this.weather = null;
-        this.setPlayerWeather(this.world.getWorldInfo().isRaining() ? WeatherType.DOWNFALL : WeatherType.CLEAR, false);
-    }
+	@Override
+	public void resetPlayerWeather() {
+		this.weather = null;
+		this.setPlayerWeather(this.world.getWorldInfo().isRaining() ? WeatherType.DOWNFALL : WeatherType.CLEAR, false);
+	}
 }

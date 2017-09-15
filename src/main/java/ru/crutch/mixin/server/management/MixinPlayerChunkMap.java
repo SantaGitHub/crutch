@@ -12,13 +12,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Mixin(net.minecraft.server.management.PlayerChunkMap.class)
-public class MixinPlayerChunkMap implements IMixinPlayerChunkMap {
-
-
-    @Shadow
-    List<EntityPlayerMP> players;
-    @Shadow
-    Long2ObjectMap<PlayerChunkMapEntry> entryMap;
+public abstract class MixinPlayerChunkMap implements IMixinPlayerChunkMap {
 
     public boolean isChunkInUse(int x, int z) {
         PlayerChunkMapEntry pi = getEntry(x, z);
@@ -28,15 +22,8 @@ public class MixinPlayerChunkMap implements IMixinPlayerChunkMap {
         return false;
     }
 
-    @Nullable
-    public PlayerChunkMapEntry getEntry(int x, int z)
-    {
-        return this.entryMap.get(getIndex(x, z));
-    }
-    @Override
-    public long getIndex(int x, int z)
-    {
-        return (long)x + 2147483647L | (long)z + 2147483647L << 32;
-    }
+	@Override
+	@Shadow
+	public abstract PlayerChunkMapEntry getEntry(int x, int z);
 
 }

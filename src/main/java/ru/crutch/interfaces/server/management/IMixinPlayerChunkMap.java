@@ -7,6 +7,4 @@ public interface IMixinPlayerChunkMap {
     boolean isChunkInUse(int x, int z);
 
     PlayerChunkMapEntry getEntry(int x, int z);
-
-    long getIndex(int x, int z);
 }

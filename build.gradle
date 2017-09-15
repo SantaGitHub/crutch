@@ -2,25 +2,25 @@ buildscript {
 	repositories {
 		jcenter()
 		maven {
-			name = "forge"
+			name = 'forge'
 			url = "https://files.minecraftforge.net/maven"
 		}
 		maven {
-			name = "sonatype"
+			name = 'sonatype'
 			url = "https://oss.sonatype.org/content/repositories/snapshots/"
 		}
 		maven {
-			name = "SpongePowered"
+			name = 'SpongePowered'
 			url = "https://repo.spongepowered.org/maven"
 		}
 	}
 	dependencies {
-		classpath "net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT"
+		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
 		classpath 'org.spongepowered:mixingradle:0.5-SNAPSHOT'
 	}
 }
 
-apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 
 version = modVersion
@@ -33,14 +33,18 @@ tasks.withType(JavaCompile) {
 
 minecraft {
 	version = project.forgeVersion
-	runDir = "run"
+	runDir = 'run'
 	mappings = project.mcpVersion
 }
 
 repositories {
 	maven {
-		name = "SpongePowered"
-		url = "https://repo.spongepowered.org/maven"
+		name = 'SpongePowered'
+		url = 'https://repo.spongepowered.org/maven'
+	}
+	maven {
+		name = 'spigotmc-public'
+		url = 'https://hub.spigotmc.org/nexus/content/groups/public/'
 	}
 	mavenCentral()
 }
@@ -55,10 +59,11 @@ configurations {
 dependencies {
 	shade 'commons-lang:commons-lang:2.6'
 	shade 'org.avaje:ebean:2.8.1'
-	shade 'com.googlecode.json-simple:json-simple:1.1'
+	shade 'com.googlecode.json-simple:json-simple:1.1.1'
 	shade 'org.yaml:snakeyaml:1.15'
 	shade 'com.google.guava:guava:17.0'
 	shade 'org.spongepowered:mixin:0.7.2-SNAPSHOT'
+	shade 'org.bukkit:bukkit:1.10.2-R0.1-SNAPSHOT'
 }
 
 jar {
@@ -66,7 +71,6 @@ jar {
 		attributes (
 			'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
 			'TweakOrder': '0',
-			'MixinConfigs': 'mixins.crutch.json',
 			'FMLCorePlugin': 'ru.crutch.CrutchCorePlugin',
 			'ForceLoadAsMod': 'true',
 			'FMLCorePluginContainsFMLMod': 'true',

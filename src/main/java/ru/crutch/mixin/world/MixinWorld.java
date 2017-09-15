@@ -90,7 +90,7 @@ public abstract class MixinWorld implements IMixinWorld{
             return createChunkProvider();
 
         int providerId = DimensionManager.getProviderType( provider.getDimension()).getId();
-        @SuppressWarnings("deprecation")
+        
         org.bukkit.World.Environment env = org.bukkit.World.Environment.getEnvironment(providerId);
         env.getClass(); //NPE
         WorldInfo info = getWorldInfo();
