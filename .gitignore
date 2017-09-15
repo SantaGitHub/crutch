@@ -4,6 +4,7 @@
 .metadata/
 bin/
 build/
+classes/
 out/
 svarka/
 run/
