@@ -5,6 +5,8 @@
 package org.bukkit.craftbukkit;
 
 import net.minecraft.server.management.UserList;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.map.MapView;
@@ -95,6 +97,7 @@ import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.ServerWorldEventHandler;
 import net.minecraft.entity.EntityTracker;
 import net.minecraft.world.storage.WorldInfo;
+import ru.crutch.interfaces.entity.IMixinEntity;
 import ru.crutch.interfaces.server.IMixinMinecraftServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.GameType;
@@ -192,6 +195,7 @@ import org.bukkit.plugin.ServicesManager;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
+import ru.crutch.interfaces.server.management.IMixinPlayerList;
 
 public final class CraftServer implements Server
 {
@@ -240,7 +244,7 @@ public final class CraftServer implements Server
         ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
         CraftItemFactory.instance();
     }
-    
+    @SideOnly(Side.SERVER)
     public CraftServer(final MinecraftServer console, final PlayerList playerList) {
         this.bukkitVersion = Versioning.getBukkitVersion();
         this.logger = Logger.getLogger("Minecraft");
@@ -269,13 +273,13 @@ public final class CraftServer implements Server
         this.invalidUserUUID = UUID.nameUUIDFromBytes("InvalidUsername".getBytes(Charsets.UTF_8));
         this.console = console;
         this.playerList = (DedicatedPlayerList)playerList;
-        this.playerView = Collections.unmodifiableList((List<? extends CraftPlayer>)Lists.transform((List)playerList.playerEntityList, (Function)new Function<EntityPlayerMP, CraftPlayer>() {
+        this.playerView = Collections.unmodifiableList((List<? extends CraftPlayer>)Lists.transform(((IMixinPlayerList) (List)playerList).getPlayerEntityList(), (Function)new Function<EntityPlayerMP, CraftPlayer>() {
             public CraftPlayer apply(final EntityPlayerMP player) {
-                return (CraftPlayer) player.getBukkitEntity();
+                return ((IMixinEntity) player).getBukkitEntity();
             }
         }));
         this.serverVersion = CraftServer.class.getPackage().getImplementationVersion();
-        BooleanWrapper.access$1(this.online, console.getPropertyManager().getBooleanProperty("online-mode", true));
+        BooleanWrapper.access$1(this.online, ((IMixinMinecraftServer) console).getPropertyManager().getBooleanProperty("online-mode", true));
         Bukkit.setServer(this);
         Enchantments.SHARPNESS.getClass();
         Enchantment.stopAcceptingRegistrations();
@@ -323,7 +327,7 @@ public final class CraftServer implements Server
         this.animalSpawn = this.configuration.getInt("spawn-limits.animals");
         this.waterAnimalSpawn = this.configuration.getInt("spawn-limits.water-animals");
         this.ambientSpawn = this.configuration.getInt("spawn-limits.ambient");
-        console.autosavePeriod = this.configuration.getInt("ticks-per.autosave");
+        ((IMixinMinecraftServer) console).setAutosavePeriod(this.configuration.getInt("ticks-per.autosave"));
         this.warningState = Warning.WarningState.value(this.configuration.getString("settings.deprecated-verbose"));
         this.chunkGCPeriod = this.configuration.getInt("chunk-gc.period-in-ticks");
         this.chunkGCLoadThresh = this.configuration.getInt("chunk-gc.load-threshold");

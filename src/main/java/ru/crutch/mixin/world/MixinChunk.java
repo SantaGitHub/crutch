@@ -1,19 +1,33 @@
 package ru.crutch.mixin.world;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
+import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ClassInheritanceMultiMap;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.bukkit.Server;
 import org.bukkit.craftbukkit.CraftChunk;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ru.crutch.interfaces.world.IMixinChunk;
 import ru.crutch.interfaces.world.IMixinWorld;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Mixin(net.minecraft.world.chunk.Chunk.class)
 public abstract class MixinChunk implements IMixinChunk {
@@ -29,6 +43,16 @@ public abstract class MixinChunk implements IMixinChunk {
     int xPosition;
     @Shadow
     int zPosition;
+
+    @Mutable @Final @Shadow public Map<BlockPos, TileEntity> chunkTileEntityMap;
+    @Mutable @Final @Shadow public ClassInheritanceMultiMap<Entity>[] entityLists;
+    @Mutable @Final @Shadow public ExtendedBlockStorage[] storageArrays;
+    @Mutable @Final @Shadow public byte[] blockBiomeArray;
+    @Mutable @Final @Shadow public int[] precipitationHeightMap;
+    @Mutable @Final @Shadow public boolean[] updateSkylightColumns;
+    @Mutable @Final @Shadow public int queuedLightChecks;
+    @Mutable @Final @Shadow private ConcurrentLinkedQueue<BlockPos> tileEntityPosQueue;
+    @Mutable @Final @Shadow int[] heightMap;
 
     @Shadow
     public abstract void populateChunk(IChunkGenerator generator);
@@ -46,11 +70,37 @@ public abstract class MixinChunk implements IMixinChunk {
         this.bukkitChunk = bukkitChunk;
     }
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(World world, int cx, int cz, CallbackInfo ci)
+    @Redirect(method = "<init>", at = @At("RETURN"))
+    private void onConstructed(World world, int cx, int cz, CallbackInfo ci)
     {
+        this.storageArrays = new ExtendedBlockStorage[16];
+        this.blockBiomeArray = new byte[256];
+        this.precipitationHeightMap = new int[256];
+        this.updateSkylightColumns = new boolean[256];
+        this.chunkTileEntityMap = Maps.<BlockPos, TileEntity>newHashMap();
+        this.queuedLightChecks = 4096;
+        this.tileEntityPosQueue = Queues.<BlockPos>newConcurrentLinkedQueue();
+        this.entityLists = (ClassInheritanceMultiMap[])(new ClassInheritanceMultiMap[16]);
+        this.world = world;
+        this.xPosition = cx;
+        this.zPosition = cz;
+        this.heightMap = new int[256];
+
+        for (int i = 0; i < this.entityLists.length; ++i)
+        {
+            this.entityLists[i] = new ClassInheritanceMultiMap(Entity.class);
+        }
+
+        Arrays.fill((int[])this.precipitationHeightMap, (int) - 999);
+        Arrays.fill(this.blockBiomeArray, (byte) - 1);
+
         if(!((Object) this instanceof EmptyChunk))
             bukkitChunk = new CraftChunk((Chunk) (Object) this);
+    }
+
+    @Override
+    public Map<BlockPos, TileEntity> getChunkTileEntityMap(){
+        return this.chunkTileEntityMap;
     }
 
     @Override

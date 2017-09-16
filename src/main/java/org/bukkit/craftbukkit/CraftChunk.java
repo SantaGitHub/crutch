@@ -6,6 +6,8 @@ package org.bukkit.craftbukkit;
 
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.world.IMixinChunk;
 import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.mixin.world.MixinWorld;
 import net.minecraft.world.biome.Biome;
@@ -100,7 +102,7 @@ public class CraftChunk implements Chunk {
 			for (int length = (array = chunk.getEntityLists()[j].toArray()).length, k = 0; k < length; ++k) {
 				final Object obj = array[k];
 				if (obj instanceof net.minecraft.entity.Entity) {
-					entities[index++] = ((net.minecraft.entity.Entity) obj).getBukkitEntity();
+					entities[index++] = ((IMixinEntity) obj).getBukkitEntity();
 				}
 			}
 		}
@@ -111,13 +113,13 @@ public class CraftChunk implements Chunk {
 	public BlockState[] getTileEntities() {
 		int index = 0;
 		final net.minecraft.world.chunk.Chunk chunk = this.getHandle();
-		final BlockState[] entities = new BlockState[chunk.chunkTileEntityMap.size()];
+		final BlockState[] entities = new BlockState[((IMixinChunk) chunk).getChunkTileEntityMap().size()];
 		Object[] array;
-		for (int length = (array = chunk.chunkTileEntityMap.keySet().toArray()).length, i = 0; i < length; ++i) {
+		for (int length = (array = ((IMixinChunk) chunk).getChunkTileEntityMap().keySet().toArray()).length, i = 0; i < length; ++i) {
 			final Object obj = array[i];
 			if (obj instanceof BlockPos) {
 				final BlockPos position = (BlockPos) obj;
-				entities[index++] = this.worldServer.getWorld()
+				entities[index++] = ((IMixinWorld) this.worldServer).getWorld()
 						.getBlockAt(position.getX(), position.getY(), position.getZ()).getState();
 			}
 		}
