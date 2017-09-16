@@ -267,6 +267,7 @@ import ru.crutch.interfaces.server.management.IMixinPlayerChunkMapEntry;
 import ru.crutch.interfaces.world.IMixinChunk;
 import ru.crutch.interfaces.world.IMixinExplosion;
 import ru.crutch.interfaces.world.IMixinWorld;
+import ru.crutch.interfaces.world.IMixinWorldServer;
 import ru.crutch.interfaces.world.gen.IMixinChunkProviderServer;
 import ru.crutch.interfaces.world.storage.IMixinSaveHandler;
 
@@ -1514,12 +1515,12 @@ public class CraftWorld implements World
     
     @Override
     public boolean getAllowAnimals() {
-        return this.world.spawnPeacefulMobs;
+        return ((IMixinWorld) this.world).getSpawnPeacefulMobs();
     }
     
     @Override
     public boolean getAllowMonsters() {
-        return this.world.spawnHostileMobs;
+        return ((IMixinWorld) this.world).getSpawnHostileMobs();
     }
     
     @Override
@@ -1534,12 +1535,12 @@ public class CraftWorld implements World
     
     @Override
     public boolean getKeepSpawnInMemory() {
-        return this.world.keepSpawnInMemory;
+        return ((IMixinWorld) this.world).getKeepSpawnInMemory();
     }
     
     @Override
     public void setKeepSpawnInMemory(final boolean keepLoaded) {
-        this.world.keepSpawnInMemory = keepLoaded;
+        ((IMixinWorld) this.world).setKeepSpawnInMemory(keepLoaded);
         final BlockPos chunkcoordinates = this.world.getSpawnPoint();
         final int chunkCoordX = chunkcoordinates.getX() >> 4;
         final int chunkCoordZ = chunkcoordinates.getZ() >> 4;
@@ -1596,7 +1597,7 @@ public class CraftWorld implements World
     
     @Override
     public WorldType getWorldType() {
-        return WorldType.getByName(this.world.getWorldInfo().getTerrainType().getWorldTypeName());
+        return WorldType.getByName(this.world.getWorldInfo().getTerrainType().getName());
     }
     
     @Override
@@ -1606,22 +1607,22 @@ public class CraftWorld implements World
     
     @Override
     public long getTicksPerAnimalSpawns() {
-        return this.world.ticksPerAnimalSpawns;
+        return ((IMixinWorld) this.world).getTicksPerAnimalSpawns();
     }
     
     @Override
     public void setTicksPerAnimalSpawns(final int ticksPerAnimalSpawns) {
-        this.world.ticksPerAnimalSpawns = ticksPerAnimalSpawns;
+        ((IMixinWorld) this.world).setTicksPerAnimalSpawns(ticksPerAnimalSpawns);
     }
     
     @Override
     public long getTicksPerMonsterSpawns() {
-        return this.world.ticksPerMonsterSpawns;
+        return ((IMixinWorld) this.world).getTicksPerMonsterSpawns();
     }
     
     @Override
     public void setTicksPerMonsterSpawns(final int ticksPerMonsterSpawns) {
-        this.world.ticksPerMonsterSpawns = ticksPerMonsterSpawns;
+        ((IMixinWorld) this.world).setTicksPerMonsterSpawns(ticksPerMonsterSpawns);
     }
     
     @Override
@@ -1716,7 +1717,7 @@ public class CraftWorld implements World
         final double y = loc.getY();
         final double z = loc.getZ();
         final SPacketCustomSound packet = new SPacketCustomSound(sound, SoundCategory.MASTER, x, y, z, volume, pitch);
-        this.world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, x, y, z, (volume > 1.0f) ? ((double)(16.0f * volume)) : 16.0, this.world.dimension, packet);
+        this.world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, x, y, z, (volume > 1.0f) ? ((double)(16.0f * volume)) : 16.0, ((IMixinWorld) this.world).getProvider().getDimension(), packet);
     }
     
     @Override
@@ -1814,7 +1815,7 @@ public class CraftWorld implements World
         if (data != null && !particle.getDataType().isInstance(data)) {
             throw new IllegalArgumentException("data should be " + particle.getDataType() + " got " + data.getClass());
         }
-        this.getHandle().sendParticles(null, CraftParticle.toNMS(particle), true, x, y, z, count, offsetX, offsetY, offsetZ, extra, CraftParticle.toData(particle, data));
+        ((IMixinWorldServer) this.getHandle()).sendParticles(null, CraftParticle.toNMS(particle), true, x, y, z, count, offsetX, offsetY, offsetZ, extra, CraftParticle.toData(particle, data));
     }
     
     public void processChunkGC() {
@@ -1833,7 +1834,7 @@ public class CraftWorld implements World
             if (this.isChunkInUse(chunk.xPosition, chunk.zPosition)) {
                 continue;
             }
-            if (cps.droppedChunksSet.contains(ChunkPos.asLong(chunk.xPosition, chunk.zPosition))) {
+            if (((IMixinChunkProviderServer) cps).getdroppedChunksSet().contains(ChunkPos.asLong(chunk.xPosition, chunk.zPosition))) {
                 continue;
             }
             cps.unload(chunk);

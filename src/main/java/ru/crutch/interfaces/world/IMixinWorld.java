@@ -2,6 +2,7 @@ package ru.crutch.interfaces.world;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -17,6 +18,16 @@ public interface IMixinWorld {
     WorldProvider getProvider();
 
     void setProvider(WorldProvider provider);
+
+
+    long getTicksPerAnimalSpawns();
+
+    void setTicksPerAnimalSpawns(final int ticksPerAnimalSpawns);
+
+    void setTicksPerMonsterSpawns(final int ticksPerMonsterSpawns);
+
+    long getTicksPerMonsterSpawns();
+
 
     boolean getpvpMode();
 
@@ -39,5 +50,13 @@ public interface IMixinWorld {
     int getData(int x, int y, int z);
 
     Block getType(int x, int y, int z);
+
+    boolean getSpawnPeacefulMobs();
+
+    boolean getKeepSpawnInMemory();
+
+    void setKeepSpawnInMemory(boolean flag);
+
+    boolean getSpawnHostileMobs();
 
 }

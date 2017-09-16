@@ -77,13 +77,57 @@ public abstract class MixinWorld implements IMixinWorld{
         this.pvpMode = flag;
     }
     
-    //public boolean captureBlockStates = false;
-    //public boolean captureTreeGeneration = false;
+    @Shadow public boolean spawnPeacefulMobs;
+    @Shadow protected boolean spawnHostileMobs;
+    public long ticksPerAnimalSpawns;
+    public long ticksPerMonsterSpawns;
+
     private ChunkGenerator generator;
     private CraftWorld craftWorld;
     private IBlockState iblockstate;
+    public boolean keepSpawnInMemory = true;
 
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;createChunkProvider()Lnet/minecraft/world/chunk/IChunkProvider;"))
+    @Override
+    public void setTicksPerMonsterSpawns(final int ticksPerMonsterSpawns){
+        this.ticksPerMonsterSpawns = ticksPerMonsterSpawns;
+    }
+    @Override
+    public long getTicksPerMonsterSpawns(){
+        return this.ticksPerMonsterSpawns;
+    }
+
+    @Override
+    public void setTicksPerAnimalSpawns(final int ticksPerAnimalSpawns){
+        this.ticksPerAnimalSpawns = ticksPerAnimalSpawns;
+    }
+    @Override
+    public long getTicksPerAnimalSpawns(){
+        return this.ticksPerAnimalSpawns;
+    }
+
+    @Override
+    public boolean getKeepSpawnInMemory(){
+        return this.keepSpawnInMemory;
+    }
+
+    @Override
+    public void setKeepSpawnInMemory(boolean flag){
+        this.keepSpawnInMemory = flag;
+    }
+
+    @Override
+    public boolean getSpawnHostileMobs(){
+        return this.spawnHostileMobs;
+    }
+
+    @Override
+    public boolean getSpawnPeacefulMobs(){
+        return this.spawnPeacefulMobs;
+    }
+
+
+
+    @Redirect(method = "<init>", at = @At(value = "RETURN", target = "Lnet/minecraft/world/World;createChunkProvider()Lnet/minecraft/world/chunk/IChunkProvider;"))
     public IChunkProvider createChunkProviderReplacement(World world)
     {
         if(!((Object) this instanceof WorldServer) || getServer() == null)
