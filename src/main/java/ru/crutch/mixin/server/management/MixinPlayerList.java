@@ -27,9 +27,4 @@ public abstract class MixinPlayerList implements IMixinPlayerList {
 
 	@Shadow @Final
 	public List<EntityPlayerMP> playerEntityList;
-
-	@Override
-	public List<EntityPlayerMP> getPlayerEntityList(){
-		return this.playerEntityList;
-	}
 }

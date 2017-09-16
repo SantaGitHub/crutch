@@ -75,6 +75,7 @@ jar {
 			'FMLCorePlugin': 'ru.crutch.CrutchCorePlugin',
 			'ForceLoadAsMod': 'true',
 			'FMLCorePluginContainsFMLMod': 'true',
+			'FMLAT': 'crutch_at.cfg'
 		)
 	}
 	

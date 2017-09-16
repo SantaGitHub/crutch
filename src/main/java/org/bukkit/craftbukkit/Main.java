@@ -31,7 +31,7 @@ public class Main
         Main.useConsole = true;
     }
     
-    public static OptionSet main(final String[] args) { // Sorry for that
+    public static OptionSet main(final String[] args) {
         final OptionParser parser = new OptionParser() {
             {
                 this.acceptsAll(asList(new String[] { "?", "help" }), "Show the help");

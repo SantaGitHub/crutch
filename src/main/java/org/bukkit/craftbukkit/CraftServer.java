@@ -274,7 +274,7 @@ public final class CraftServer implements Server
         this.invalidUserUUID = UUID.nameUUIDFromBytes("InvalidUsername".getBytes(Charsets.UTF_8));
         this.console = console;
         this.playerList = (DedicatedPlayerList)playerList;
-        this.playerView = Collections.unmodifiableList((List<? extends CraftPlayer>)Lists.transform(((IMixinPlayerList)playerList).getPlayerEntityList(), (Function)new Function<EntityPlayerMP, CraftPlayer>() {
+        this.playerView = Collections.unmodifiableList((List<? extends CraftPlayer>)Lists.transform(playerList.getPlayers(), (Function)new Function<EntityPlayerMP, CraftPlayer>() {
             public CraftPlayer apply(final EntityPlayerMP player) {
                 return ((IMixinEntityPlayerMP) player).getBukkitEntity();
             }

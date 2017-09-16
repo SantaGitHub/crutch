@@ -61,9 +61,9 @@ public abstract class MixinMinecraftServer implements IMixinMinecraftServer {
 	public void onPlayerListConstructed(CallbackInfo ci) {
 		server = new CraftServer((MinecraftServer)((IMixinMinecraftServer)this), playerList);
 		server = (CraftServer) Bukkit.getServer();
-		CrutchServer.debug("load plugins, startup");
+		CrutchServer.debug("load plugins, STARTUP");
 		server.loadPlugins();
-        server.enablePlugins(PluginLoadOrder.STARTUP);
+		server.enablePlugins(PluginLoadOrder.STARTUP);
 	}
 	
 	@Inject(method = "initialWorldChunkLoad", at = @At("RETURN"))
