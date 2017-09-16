@@ -19,5 +19,5 @@ deploy:
   skip_cleanup: true
   file: "$HOME/release/*"
   on:
-    repo: CDAGaming/crutch
+    repo: SantaGitHub/crutch
     tags: true
