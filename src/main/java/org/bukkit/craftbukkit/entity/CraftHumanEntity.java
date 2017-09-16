@@ -423,7 +423,7 @@ public abstract class CraftHumanEntity extends CraftLivingEntity implements Huma
     
     @Override
     public InventoryView openMerchant(final Villager villager, final boolean force) {
-        Preconditions.checkNotNull((Object)villager, (Object)"villager cannot be null");
+        Preconditions.checkNotNull((Object)villager, "villager cannot be null");
         if (!force && villager.isTrading()) {
             return null;
         }

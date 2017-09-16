@@ -5,6 +5,7 @@
 package org.bukkit.craftbukkit.entity;
 
 import org.bukkit.entity.EntityType;
+import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.monster.EntitySnowman;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Snowman;

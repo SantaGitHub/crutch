@@ -4,6 +4,7 @@
 
 package org.bukkit.craftbukkit.entity;
 
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.EntityGolem;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Golem;
