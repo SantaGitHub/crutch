@@ -63,7 +63,7 @@ dependencies {
 		exclude group: 'junit'
 	}
 	shade('org.spongepowered:mixin:0.7.2-SNAPSHOT'){
-		transitive = false;
+		transitive = false
 	}
 }
 

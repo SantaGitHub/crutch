@@ -62,7 +62,7 @@ import org.bukkit.craftbukkit.inventory.CraftInventory;
 import org.bukkit.craftbukkit.inventory.CraftInventoryPlayer;
 import org.bukkit.entity.HumanEntity;
 
-public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
+public abstract class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
 {
     private CraftInventoryPlayer inventory;
     private final CraftInventory enderChest;

@@ -95,7 +95,7 @@ public final class VanillaCommandWrapper extends VanillaCommand
                     break Label_0784;
                 }
                 if (i > -1) {
-                    final List<Entity> list = EntitySelector.matchEntities(icommandlistener, as[i], (Class<? extends Entity>)Entity.class);
+                    final List<Entity> list = EntitySelector.matchEntities(icommandlistener, as[i], Entity.class);
                     final String s2 = as[i];
                     icommandlistener.setCommandStat(CommandResultStats.Type.AFFECTED_ENTITIES, list.size());
                     for (final Entity entity : list) {

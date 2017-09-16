@@ -20,6 +20,7 @@ import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BarColor;
 import org.bukkit.craftbukkit.generator.CraftChunkData;
+import ru.crutch.interfaces.entity.IMixinEntity;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.base64.Base64;
 import jline.console.ConsoleReader;
@@ -497,16 +498,16 @@ public final class CraftServer implements Server
     @Deprecated
     @Override
     public Player getPlayerExact(final String name) {
-        Validate.notNull((Object)name, "Name cannot be null");
+        Validate.notNull(name, "Name cannot be null");
         final EntityPlayerMP player = this.playerList.getPlayerByUsername(name);
-        return (Player) ((player != null) ? player.getBukkitEntity() : null);
+        return (player != null) ? ((IMixinEntity)player).getBukkitEntity() : null;
     }
     
     @Override
     public Player getPlayer(final UUID id) {
         final EntityPlayerMP player = this.playerList.getPlayerByUUID(id);
         if (player != null) {
-            return (Player) player.getBukkitEntity();
+            return ((IMixinEntity)player).getBukkitEntity();
         }
         return null;
     }
@@ -517,13 +518,13 @@ public final class CraftServer implements Server
     }
     
     public Player getPlayer(final EntityPlayerMP entity) {
-        return (Player) entity.getBukkitEntity();
+        return ((IMixinEntity)entity).getBukkitEntity();
     }
     
     @Deprecated
     @Override
     public List<Player> matchPlayer(final String partialName) {
-        Validate.notNull((Object)partialName, "PartialName cannot be null");
+        Validate.notNull(partialName, "PartialName cannot be null");
         final List<Player> matchedPlayers = new ArrayList<Player>();
         for (final Player iterPlayer : this.getOnlinePlayers()) {
             final String iterPlayerName = iterPlayer.getName();
@@ -808,7 +809,7 @@ public final class CraftServer implements Server
         }
         Map<String, Map<String, Object>> perms;
         try {
-            perms = (Map<String, Map<String, Object>>)this.yaml.load((InputStream)stream);
+            perms = (Map<String, Map<String, Object>>)this.yaml.load(stream);
         }
         catch (MarkedYAMLException ex) {
             this.getLogger().log(Level.WARNING, "Server permissions file " + file + " is not valid YAML: " + ex.toString());
@@ -1019,7 +1020,7 @@ public final class CraftServer implements Server
     
     @Override
     public World getWorld(final String name) {
-        Validate.notNull((Object)name, "Name cannot be null");
+        Validate.notNull(name, "Name cannot be null");
         return this.worlds.get(name.toLowerCase(Locale.ENGLISH));
     }
     
@@ -1067,7 +1068,7 @@ public final class CraftServer implements Server
     
     @Override
     public void configureDbConfig(final ServerConfig config) {
-        Validate.notNull((Object)config, "Config cannot be null");
+        Validate.notNull(config, "Config cannot be null");
         final DataSourceConfig ds = new DataSourceConfig();
         ds.setDriver(this.configuration.getString("database.driver"));
         ds.setUrl(this.configuration.getString("database.url"));
@@ -1075,7 +1076,7 @@ public final class CraftServer implements Server
         ds.setPassword(this.configuration.getString("database.password"));
         ds.setIsolationLevel(TransactionIsolation.getLevel(this.configuration.getString("database.isolation")));
         if (ds.getDriver().contains("sqlite")) {
-            config.setDatabasePlatform((DatabasePlatform)new SQLitePlatform());
+            config.setDatabasePlatform(new SQLitePlatform());
             config.getDatabasePlatform().getDbDdlSyntax().setIdentity("");
         }
         config.setDataSourceConfig(ds);
@@ -1106,7 +1107,7 @@ public final class CraftServer implements Server
     
     @Override
     public List<Recipe> getRecipesFor(final ItemStack result) {
-        Validate.notNull((Object)result, "Result cannot be null");
+        Validate.notNull(result, "Result cannot be null");
         final List<Recipe> results = new ArrayList<Recipe>();
         final Iterator<Recipe> iter = this.recipeIterator();
         while (iter.hasNext()) {
@@ -1255,7 +1256,7 @@ public final class CraftServer implements Server
     
     @Override
     public CraftMapView createMap(final World world) {
-        Validate.notNull((Object)world, "World cannot be null");
+        Validate.notNull(world, "World cannot be null");
         final net.minecraft.item.ItemStack stack = new net.minecraft.item.ItemStack(Items.MAP, 1, -1);
         final MapData worldmap = Items.FILLED_MAP.getMapData(stack, ((CraftWorld)world).getHandle());
         return worldmap.mapView;
@@ -1283,7 +1284,7 @@ public final class CraftServer implements Server
     @Deprecated
     @Override
     public OfflinePlayer getOfflinePlayer(final String name) {
-        Validate.notNull((Object)name, "Name cannot be null");
+        Validate.notNull(name, "Name cannot be null");
         if (!this.validUserPattern.matcher(name).matches()) {
             return new CraftOfflinePlayer(this, new GameProfile(this.invalidUserUUID, name));
         }
@@ -1305,12 +1306,12 @@ public final class CraftServer implements Server
     
     @Override
     public OfflinePlayer getOfflinePlayer(final UUID id) {
-        Validate.notNull((Object)id, "UUID cannot be null");
+        Validate.notNull(id, "UUID cannot be null");
         OfflinePlayer result = this.getPlayer(id);
         if (result == null) {
             result = this.offlinePlayers.get(id);
             if (result == null) {
-                result = new CraftOfflinePlayer(this, new GameProfile(id, (String)null));
+                result = new CraftOfflinePlayer(this, new GameProfile(id, null));
                 this.offlinePlayers.put(id, result);
             }
         }
@@ -1333,13 +1334,13 @@ public final class CraftServer implements Server
     
     @Override
     public void banIP(final String address) {
-        Validate.notNull((Object)address, "Address cannot be null.");
+        Validate.notNull(address, "Address cannot be null.");
         this.getBanList(BanList.Type.IP).addBan(address, null, null, null);
     }
     
     @Override
     public void unbanIP(final String address) {
-        Validate.notNull((Object)address, "Address cannot be null.");
+        Validate.notNull(address, "Address cannot be null.");
         this.getBanList(BanList.Type.IP).pardon(address);
     }
     
@@ -1354,7 +1355,7 @@ public final class CraftServer implements Server
     
     @Override
     public BanList getBanList(final BanList.Type type) {
-        Validate.notNull((Object)type, "Type cannot be null");
+        Validate.notNull(type, "Type cannot be null");
         switch (type) {
             case IP: {
                 return new CraftIpBanList(this.playerList.getBannedIPs());
@@ -1401,7 +1402,7 @@ public final class CraftServer implements Server
     
     @Override
     public void setDefaultGameMode(final GameMode mode) {
-        Validate.notNull((Object)mode, "Mode cannot be null");
+        Validate.notNull(mode, "Mode cannot be null");
         for (final World world : this.getWorlds()) {
             ((CraftWorld)world).getHandle().worldInfo.setGameType(GameType.getByID(mode.getValue()));
         }
@@ -1615,7 +1616,7 @@ public final class CraftServer implements Server
     
     @Override
     public CraftIconCache loadServerIcon(final File file) throws Exception {
-        Validate.notNull((Object)file, "File cannot be null");
+        Validate.notNull(file, "File cannot be null");
         if (!file.isFile()) {
             throw new IllegalArgumentException(file + " is not a file");
         }
@@ -1636,7 +1637,7 @@ public final class CraftServer implements Server
         final ByteBuf bytebuf = Unpooled.buffer();
         Validate.isTrue(image.getWidth() == 64, "Must be 64 pixels wide");
         Validate.isTrue(image.getHeight() == 64, "Must be 64 pixels high");
-        ImageIO.write(image, "PNG", (OutputStream)new ByteBufOutputStream(bytebuf));
+        ImageIO.write(image, "PNG", new ByteBufOutputStream(bytebuf));
         final ByteBuf bytebuf2 = Base64.encode(bytebuf);
         return new CraftIconCache("data:image/png;base64," + bytebuf2.toString(Charsets.UTF_8));
     }

@@ -14,7 +14,6 @@ import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
 import org.bukkit.Bukkit;
-import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.event.CraftEventFactory;
@@ -27,9 +26,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.entity.IMixinEntity;
-
-import java.util.ArrayList;
-import java.util.Iterator;
 
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld implements IMixinWorld{
