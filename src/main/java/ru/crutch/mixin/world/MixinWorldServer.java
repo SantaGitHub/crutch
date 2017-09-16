@@ -9,6 +9,7 @@ import net.minecraft.world.WorldServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.world.IMixinWorldServer;
 
@@ -23,7 +24,7 @@ public abstract class MixinWorldServer implements IMixinWorldServer {
         final SPacketParticles packetplayoutworldparticles = new SPacketParticles(enumparticle, flag, (float)d0, (float)d1, (float)d2, (float)d3, (float)d4, (float)d5, (float)d6, i, aint);
         for (int j = 0; j < ((World)((IMixinWorld) this)).playerEntities.size(); ++j) {
             final EntityPlayerMP entityplayer = (EntityPlayerMP) ((World)((IMixinWorld) this)).playerEntities.get(j);
-            if (sender == null || ((IMixinEntity) entityplayer).getBukkitEntity().canSee(((IMixinEntity) sender).getBukkitEntity())) {
+            if (sender == null || ((IMixinEntityPlayerMP) entityplayer).getBukkitEntity().canSee(((IMixinEntityPlayerMP) sender).getBukkitEntity())) {
                 //final BlockPos blockposition = entityplayer.getPosition();
                 //blockposition.distanceSq(d0, d1, d2);
                 this.sendPacketWithinDistance(entityplayer, flag, d0, d1, d2, packetplayoutworldparticles);

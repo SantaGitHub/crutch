@@ -58,6 +58,8 @@ import net.minecraft.stats.StatBase;
 import org.bukkit.craftbukkit.CraftStatistic;
 import org.bukkit.Achievement;
 import net.minecraft.world.WorldServer;
+import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 import ru.crutch.inventory.CBContainer;
 
 import org.bukkit.event.Event;
@@ -250,7 +252,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
         }
         this.getHandle().listName = (name.equals(this.getName()) ? null : CraftChatMessage.fromString(name)[0]);
         for (final EntityPlayerMP player : this.server.getHandle().playerEntityList) {
-            if (player.getBukkitEntity().canSee(this)) {
+            if (((IMixinEntityPlayerMP)player).getBukkitEntity().canSee(this)) {
                 player.connection.sendPacket(new SPacketPlayerListItem(SPacketPlayerListItem.Action.UPDATE_DISPLAY_NAME, new EntityPlayerMP[] { this.getHandle() }));
             }
         }

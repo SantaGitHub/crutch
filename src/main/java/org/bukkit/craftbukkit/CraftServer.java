@@ -98,6 +98,7 @@ import net.minecraft.world.ServerWorldEventHandler;
 import net.minecraft.entity.EntityTracker;
 import net.minecraft.world.storage.WorldInfo;
 import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 import ru.crutch.interfaces.server.IMixinMinecraftServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.GameType;
@@ -275,7 +276,7 @@ public final class CraftServer implements Server
         this.playerList = (DedicatedPlayerList)playerList;
         this.playerView = Collections.unmodifiableList((List<? extends CraftPlayer>)Lists.transform(((IMixinPlayerList) (List)playerList).getPlayerEntityList(), (Function)new Function<EntityPlayerMP, CraftPlayer>() {
             public CraftPlayer apply(final EntityPlayerMP player) {
-                return ((IMixinEntity) player).getBukkitEntity();
+                return ((IMixinEntityPlayerMP) player).getBukkitEntity();
             }
         }));
         this.serverVersion = CraftServer.class.getPackage().getImplementationVersion();
@@ -499,14 +500,14 @@ public final class CraftServer implements Server
     public Player getPlayerExact(final String name) {
         Validate.notNull((Object)name, "Name cannot be null");
         final EntityPlayerMP player = this.playerList.getPlayerByUsername(name);
-        return (Player) ((player != null) ? player.getBukkitEntity() : null);
+        return (Player) ((player != null) ? ((IMixinEntityPlayerMP)player).getBukkitEntity() : null);
     }
     
     @Override
     public Player getPlayer(final UUID id) {
         final EntityPlayerMP player = this.playerList.getPlayerByUUID(id);
         if (player != null) {
-            return (Player) player.getBukkitEntity();
+            return ((IMixinEntityPlayerMP)player).getBukkitEntity();
         }
         return null;
     }
@@ -517,7 +518,7 @@ public final class CraftServer implements Server
     }
     
     public Player getPlayer(final EntityPlayerMP entity) {
-        return (Player) entity.getBukkitEntity();
+        return ((IMixinEntityPlayerMP)entity).getBukkitEntity();
     }
     
     @Deprecated
@@ -1544,7 +1545,7 @@ public final class CraftServer implements Server
         if (!(sender instanceof EntityPlayerMP)) {
             return /*(List<String>)*/ImmutableList.of();
         }
-        final Player player = ((EntityPlayerMP)sender).getBukkitEntity();
+        final Player player = ((IMixinEntityPlayerMP)((EntityPlayerMP)sender)).getBukkitEntity();
         List<String> offers;
         if (message.startsWith("/")) {
             offers = this.tabCompleteCommand(player, message);

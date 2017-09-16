@@ -1,8 +1,11 @@
 package ru.crutch.interfaces.entity.player;
 
 import org.bukkit.WeatherType;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 
-public interface IMixinEntityPlayerMP {
+import ru.crutch.interfaces.entity.IMixinEntity;
+
+public interface IMixinEntityPlayerMP extends IMixinEntity {
 
     long getPlayerTime();
 
@@ -15,6 +18,9 @@ public interface IMixinEntityPlayerMP {
     void tickWeather();
 
     void resetPlayerWeather();
+    
+    @Override
+    CraftPlayer getBukkitEntity();
 
 
 }

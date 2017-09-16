@@ -3,6 +3,7 @@ package ru.crutch.interfaces.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.datasync.EntityDataManager;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.projectiles.ProjectileSource;
 
@@ -18,7 +19,7 @@ public interface IMixinEntity {
 
     void setFireTicks(int ticks);
 
-    CraftPlayer getBukkitEntity();
+    CraftEntity getBukkitEntity();
 
     ProjectileSource getProjectileSource();
 
