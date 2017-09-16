@@ -95,6 +95,7 @@ import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.ServerWorldEventHandler;
 import net.minecraft.entity.EntityTracker;
 import net.minecraft.world.storage.WorldInfo;
+import ru.crutch.interfaces.server.IMixinMinecraftServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.GameType;
 import net.minecraft.world.chunk.storage.AnvilSaveHandler;
@@ -336,11 +337,11 @@ public final class CraftServer implements Server
     }
     
     private File getConfigFile() {
-        return (File)this.console.options.valueOf("bukkit-settings");
+        return (File)((IMixinMinecraftServer)this.console).getOptionSet().valueOf("bukkit-settings");
     }
     
     private File getCommandsConfigFile() {
-        return (File)this.console.options.valueOf("commands-settings");
+        return (File)((IMixinMinecraftServer)this.console).getOptionSet().valueOf("commands-settings");
     }
     
     private void saveConfig() {
@@ -363,7 +364,7 @@ public final class CraftServer implements Server
     
     public void loadPlugins() {
         this.pluginManager.registerInterface(JavaPluginLoader.class);
-        final File pluginFolder = (File)this.console.options.valueOf("plugins");
+        final File pluginFolder = (File)((IMixinMinecraftServer)this.console).getOptionSet().valueOf("plugins");
         if (pluginFolder.exists()) {
             final Plugin[] plugins = this.pluginManager.loadPlugins(pluginFolder);
             Plugin[] array;
@@ -617,7 +618,7 @@ public final class CraftServer implements Server
     
     @Override
     public File getUpdateFolderFile() {
-        return new File((File)this.console.options.valueOf("plugins"), this.configuration.getString("settings.update-folder", "update"));
+        return new File((File)((IMixinMinecraftServer)this.console).getOptionSet().valueOf("plugins"), this.configuration.getString("settings.update-folder", "update"));
     }
     
     @Override
@@ -701,11 +702,11 @@ public final class CraftServer implements Server
         ++this.reloadCount;
         this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
         this.commandsConfiguration = YamlConfiguration.loadConfiguration(this.getCommandsConfigFile());
-        final PropertyManager config = new PropertyManager(this.console.options);
+        final PropertyManager config = new PropertyManager(((IMixinMinecraftServer)this.console).getOptionSet());
         ((DedicatedServer)this.console).settings = config;
         final boolean animals = config.getBooleanProperty("spawn-animals", this.console.getCanSpawnAnimals());
-        final boolean monsters = config.getBooleanProperty("spawn-monsters", this.console./*worlds.get(0)*/worldServers[0].getDifficulty() != EnumDifficulty.PEACEFUL);
-        final EnumDifficulty difficulty = EnumDifficulty.getDifficultyEnum(config.getIntProperty("difficulty", this.console./*worlds.get(0)*/worldServers[0].getDifficulty().ordinal()));
+        final boolean monsters = config.getBooleanProperty("spawn-monsters", this.console./*worlds.get(0)*/worlds[0].getDifficulty() != EnumDifficulty.PEACEFUL);
+        final EnumDifficulty difficulty = EnumDifficulty.getDifficultyEnum(config.getIntProperty("difficulty", this.console./*worlds.get(0)*/worlds[0].getDifficulty().ordinal()));
         BooleanWrapper.access$1(this.online, config.getBooleanProperty("online-mode", this.console.isServerInOnlineMode()));
         this.console.setCanSpawnAnimals(config.getBooleanProperty("spawn-animals", this.console.getCanSpawnAnimals()));
         this.console.setAllowPvp(config.getBooleanProperty("pvp", this.console.isPVPEnabled()));
@@ -733,7 +734,7 @@ public final class CraftServer implements Server
         catch (IOException ex) {
             this.logger.log(Level.WARNING, "Failed to load banned-players.json, " + ex.getMessage());
         }
-        for (final WorldServer world : /*this.console.worlds*/this.console.worldServers) {
+        for (final WorldServer world : /*this.console.worlds*/this.console.worlds) {
             world.worldInfo.setDifficulty(difficulty);
             world.setAllowedSpawnTypes(monsters, animals);
             if (this.getTicksPerAnimalSpawns() < 0) {
@@ -1240,7 +1241,7 @@ public final class CraftServer implements Server
     @Deprecated
     @Override
     public CraftMapView getMap(final short id) {
-        final MapStorage collection = this.console./*worlds.get(0)*/worldServers[0].mapStorage;
+        final MapStorage collection = this.console./*worlds.get(0)*/worlds[0].mapStorage;
         final MapData worldmap = (MapData)collection.getOrLoadData(MapData.class, "map_" + id);
         if (worldmap == null) {
             return null;
@@ -1391,7 +1392,7 @@ public final class CraftServer implements Server
     
     @Override
     public GameMode getDefaultGameMode() {
-        return GameMode.getByValue(this.console./*worlds.get(0)*/worldServers[0].getWorldInfo().getGameType().getID());
+        return GameMode.getByValue(this.console./*worlds.get(0)*/worlds[0].getWorldInfo().getGameType().getID());
     }
     
     @Override
@@ -1432,7 +1433,7 @@ public final class CraftServer implements Server
     
     @Override
     public OfflinePlayer[] getOfflinePlayers() {
-        final SaveHandler storage = (SaveHandler)this.console./*worlds.get(0)*/worldServers[0].getSaveHandler();
+        final SaveHandler storage = (SaveHandler)this.console./*worlds.get(0)*/worlds[0].getSaveHandler();
         final String[] files = storage.getPlayerDir().list(new DatFileFilter());
         final Set<OfflinePlayer> players = new HashSet<OfflinePlayer>();
         String[] array;
