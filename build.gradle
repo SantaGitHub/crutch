@@ -57,13 +57,14 @@ configurations {
 }
 
 dependencies {
-	shade 'commons-lang:commons-lang:2.6'
-	shade 'org.avaje:ebean:2.8.1'
-	shade 'com.googlecode.json-simple:json-simple:1.1.1'
-	shade 'org.yaml:snakeyaml:1.15'
-	shade 'com.google.guava:guava:17.0'
-	shade 'org.spongepowered:mixin:0.7.2-SNAPSHOT'
-	shade 'org.bukkit:bukkit:1.10.2-R0.1-SNAPSHOT'
+	shade('org.bukkit:bukkit:1.10.2-R0.1-SNAPSHOT'){
+		exclude group: 'com.google.guava'
+		exclude group: 'com.google.code.gson'
+		exclude group: 'junit'
+	}
+	shade('org.spongepowered:mixin:0.7.2-SNAPSHOT'){
+		transitive = false;
+	}
 }
 
 jar {
