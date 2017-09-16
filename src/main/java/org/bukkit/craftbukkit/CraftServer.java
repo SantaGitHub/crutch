@@ -274,7 +274,7 @@ public final class CraftServer implements Server
         this.invalidUserUUID = UUID.nameUUIDFromBytes("InvalidUsername".getBytes(Charsets.UTF_8));
         this.console = console;
         this.playerList = (DedicatedPlayerList)playerList;
-        this.playerView = Collections.unmodifiableList((List<? extends CraftPlayer>)Lists.transform(((IMixinPlayerList) (List)playerList).getPlayerEntityList(), (Function)new Function<EntityPlayerMP, CraftPlayer>() {
+        this.playerView = Collections.unmodifiableList((List<? extends CraftPlayer>)Lists.transform(((IMixinPlayerList)playerList).getPlayerEntityList(), (Function)new Function<EntityPlayerMP, CraftPlayer>() {
             public CraftPlayer apply(final EntityPlayerMP player) {
                 return ((IMixinEntityPlayerMP) player).getBukkitEntity();
             }
@@ -605,15 +605,15 @@ public final class CraftServer implements Server
     }
     
     private String getConfigString(final String variable, final String defaultValue) {
-        return this.console.getPropertyManager().getStringProperty(variable, defaultValue);
+        return ((IMixinMinecraftServer)this.console).getPropertyManager().getStringProperty(variable, defaultValue);
     }
     
     private int getConfigInt(final String variable, final int defaultValue) {
-        return this.console.getPropertyManager().getIntProperty(variable, defaultValue);
+        return ((IMixinMinecraftServer)this.console).getPropertyManager().getIntProperty(variable, defaultValue);
     }
     
     private boolean getConfigBoolean(final String variable, final boolean defaultValue) {
-        return this.console.getPropertyManager().getBooleanProperty(variable, defaultValue);
+        return ((IMixinMinecraftServer)this.console).getPropertyManager().getBooleanProperty(variable, defaultValue);
     }
     
     @Override
@@ -707,8 +707,8 @@ public final class CraftServer implements Server
         ++this.reloadCount;
         this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
         this.commandsConfiguration = YamlConfiguration.loadConfiguration(this.getCommandsConfigFile());
-        final PropertyManager config = new PropertyManager(((IMixinMinecraftServer)this.console).getOptionSet());
-        ((DedicatedServer)this.console).settings = config;
+        final PropertyManager config = ((IMixinMinecraftServer)this.console).getPropertyManager();//new PropertyManager(((IMixinMinecraftServer)this.console).getOptionSet());
+        //((DedicatedServer)this.console).settings = config;
         final boolean animals = config.getBooleanProperty("spawn-animals", this.console.getCanSpawnAnimals());
         final boolean monsters = config.getBooleanProperty("spawn-monsters", this.console./*worlds.get(0)*/worlds[0].getDifficulty() != EnumDifficulty.PEACEFUL);
         final EnumDifficulty difficulty = EnumDifficulty.getDifficultyEnum(config.getIntProperty("difficulty", this.console./*worlds.get(0)*/worlds[0].getDifficulty().ordinal()));
@@ -723,7 +723,7 @@ public final class CraftServer implements Server
         this.ambientSpawn = this.configuration.getInt("spawn-limits.ambient");
         this.warningState = Warning.WarningState.value(this.configuration.getString("settings.deprecated-verbose"));
         this.printSaveWarning = false;
-        this.console.autosavePeriod = this.configuration.getInt("ticks-per.autosave");
+        //this.console.autosavePeriod = this.configuration.getInt("ticks-per.autosave"); // TODO
         this.chunkGCPeriod = this.configuration.getInt("chunk-gc.period-in-ticks");
         this.chunkGCLoadThresh = this.configuration.getInt("chunk-gc.load-threshold");
         this.loadIcon();
@@ -740,7 +740,7 @@ public final class CraftServer implements Server
             this.logger.log(Level.WARNING, "Failed to load banned-players.json, " + ex.getMessage());
         }
         for (final WorldServer world : /*this.console.worlds*/this.console.worlds) {
-            world.worldInfo.setDifficulty(difficulty);
+            world.getWorldInfo().setDifficulty(difficulty);
             world.setAllowedSpawnTypes(monsters, animals);
             if (this.getTicksPerAnimalSpawns() < 0) {
                 world.ticksPerAnimalSpawns = 400L;

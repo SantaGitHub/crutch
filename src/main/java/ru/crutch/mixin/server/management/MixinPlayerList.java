@@ -1,6 +1,9 @@
 package ru.crutch.mixin.server.management;
 
 import net.minecraft.entity.player.EntityPlayerMP;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.spongepowered.asm.mixin.Final;
@@ -12,6 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
+import net.minecraftforge.fml.server.FMLServerHandler;
+import ru.crutch.CrutchServer;
 import ru.crutch.interfaces.server.IMixinMinecraftServer;
 import ru.crutch.interfaces.server.management.IMixinPlayerList;
 
@@ -21,19 +26,10 @@ import java.util.List;
 public abstract class MixinPlayerList implements IMixinPlayerList {
 
 	@Shadow @Final
-	public final List<EntityPlayerMP> playerEntityList = new java.util.concurrent.CopyOnWriteArrayList<EntityPlayerMP>();
+	public List<EntityPlayerMP> playerEntityList;
 
 	@Override
 	public List<EntityPlayerMP> getPlayerEntityList(){
 		return this.playerEntityList;
-	}
-
-	CraftServer cserver;
-	
-	@Inject(method = "<init>", at = @At("RETURN"))
-	void onConstruct(MinecraftServer server, CallbackInfo ci) {
-		cserver = new CraftServer(server, (PlayerList)((IMixinPlayerList)this));
-		cserver.loadPlugins();
-        cserver.enablePlugins(PluginLoadOrder.STARTUP);
 	}
 }
