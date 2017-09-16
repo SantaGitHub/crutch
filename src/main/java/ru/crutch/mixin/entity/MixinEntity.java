@@ -2,17 +2,15 @@ package ru.crutch.mixin.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.projectiles.ProjectileSource;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.Inject;
-import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.world.IMixinWorld;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IMixinEntity {
@@ -41,7 +39,7 @@ public abstract class MixinEntity implements IMixinEntity {
 	public EntityDataManager dataManager;
 
 	public boolean forceExplosionKnockback = false;
-	protected CraftEntity bukkitEntity;
+	protected CraftPlayer bukkitEntity;
 	public ProjectileSource projectileSource;
 	public String spawnReason;
 
@@ -64,9 +62,9 @@ public abstract class MixinEntity implements IMixinEntity {
 	}
 
 	@Override
-	public CraftEntity getBukkitEntity() {
+	public CraftPlayer getBukkitEntity() {
 		if (bukkitEntity == null)
-			bukkitEntity = CraftEntity.getEntity(((IMixinWorld) world).getServer(), (Entity) (Object) this);
+			bukkitEntity = (CraftPlayer) CraftEntity.getEntity(((IMixinWorld) world).getServer(), (Entity) ((IMixinEntity) this));
 		return bukkitEntity;
 	}
 
