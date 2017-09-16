@@ -1545,7 +1545,7 @@ public final class CraftServer implements Server
         if (!(sender instanceof EntityPlayerMP)) {
             return /*(List<String>)*/ImmutableList.of();
         }
-        final Player player = ((IMixinEntityPlayerMP)((EntityPlayerMP)sender)).getBukkitEntity();
+        final Player player = ((IMixinEntityPlayerMP) sender).getBukkitEntity();
         List<String> offers;
         if (message.startsWith("/")) {
             offers = this.tabCompleteCommand(player, message);
