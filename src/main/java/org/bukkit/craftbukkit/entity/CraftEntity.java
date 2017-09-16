@@ -118,6 +118,7 @@ import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.entity.Entity;
 import ru.crutch.entity.CraftCustomEntity;
 import ru.crutch.entity.CustomCraftProjectile;
+import ru.crutch.interfaces.entity.IMixinEntity;
 
 public abstract class CraftEntity implements Entity
 {
@@ -501,9 +502,9 @@ public abstract class CraftEntity implements Entity
     
     @Override
     public List<Entity> getNearbyEntities(final double x, final double y, final double z) {
-        final List<net.minecraft.entity.Entity> notchEntityList = this.entity.worldObj.getEntitiesInAABBexcluding(this.entity, this.entity.getEntityBoundingBox().expand(x, y, z), null);
+        final List<IMixinEntity> notchEntityList = this.entity.worldObj.getEntitiesInAABBexcluding(this.entity, this.entity.getEntityBoundingBox().expand(x, y, z), null);
         final List<Entity> bukkitEntityList = new ArrayList<Entity>(notchEntityList.size());
-        for (final net.minecraft.entity.Entity e : notchEntityList) {
+        for (final IMixinEntity e : notchEntityList) {
             bukkitEntityList.add(e.getBukkitEntity());
         }
         return bukkitEntityList;

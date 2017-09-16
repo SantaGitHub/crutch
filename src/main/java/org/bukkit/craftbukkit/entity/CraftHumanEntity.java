@@ -62,7 +62,7 @@ import org.bukkit.craftbukkit.inventory.CraftInventory;
 import org.bukkit.craftbukkit.inventory.CraftInventoryPlayer;
 import org.bukkit.entity.HumanEntity;
 
-public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
+public abstract class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
 {
     private CraftInventoryPlayer inventory;
     private final CraftInventory enderChest;
@@ -423,7 +423,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
     
     @Override
     public InventoryView openMerchant(final Villager villager, final boolean force) {
-        Preconditions.checkNotNull((Object)villager, (Object)"villager cannot be null");
+        Preconditions.checkNotNull((Object)villager, "villager cannot be null");
         if (!force && villager.isTrading()) {
             return null;
         }
