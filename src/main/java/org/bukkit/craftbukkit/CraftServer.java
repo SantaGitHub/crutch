@@ -98,6 +98,7 @@ import net.minecraft.world.ServerWorldEventHandler;
 import net.minecraft.entity.EntityTracker;
 import net.minecraft.world.storage.WorldInfo;
 import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 import ru.crutch.interfaces.server.IMixinMinecraftServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.GameType;
@@ -196,7 +197,6 @@ import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import ru.crutch.interfaces.server.management.IMixinPlayerList;
-import ru.crutch.interfaces.world.IMixinWorld;
 
 public final class CraftServer implements Server
 {
@@ -274,9 +274,9 @@ public final class CraftServer implements Server
         this.invalidUserUUID = UUID.nameUUIDFromBytes("InvalidUsername".getBytes(Charsets.UTF_8));
         this.console = console;
         this.playerList = (DedicatedPlayerList)playerList;
-        this.playerView = Collections.unmodifiableList((List<? extends CraftPlayer>)Lists.transform(((IMixinPlayerList) (List)playerList).getPlayerEntityList(), (Function)new Function<EntityPlayerMP, CraftPlayer>() {
+        this.playerView = Collections.unmodifiableList((List<? extends CraftPlayer>)Lists.transform(playerList.getPlayers(), (Function)new Function<EntityPlayerMP, CraftPlayer>() {
             public CraftPlayer apply(final EntityPlayerMP player) {
-                return ((IMixinEntity) player).getBukkitEntity();
+                return ((IMixinEntityPlayerMP) player).getBukkitEntity();
             }
         }));
         this.serverVersion = CraftServer.class.getPackage().getImplementationVersion();
@@ -445,7 +445,7 @@ public final class CraftServer implements Server
     
     @Override
     public String getName() {
-        return this.serverName;
+        return "CraftBukkit";
     }
     
     @Override
@@ -500,14 +500,14 @@ public final class CraftServer implements Server
     public Player getPlayerExact(final String name) {
         Validate.notNull((Object)name, "Name cannot be null");
         final EntityPlayerMP player = this.playerList.getPlayerByUsername(name);
-        return (Player) ((player != null) ? ((IMixinEntity) player).getBukkitEntity() : null);
+        return (Player) ((player != null) ? ((IMixinEntityPlayerMP)player).getBukkitEntity() : null);
     }
     
     @Override
     public Player getPlayer(final UUID id) {
         final EntityPlayerMP player = this.playerList.getPlayerByUUID(id);
         if (player != null) {
-            return ((IMixinEntity) player).getBukkitEntity();
+            return ((IMixinEntityPlayerMP)player).getBukkitEntity();
         }
         return null;
     }
@@ -518,7 +518,7 @@ public final class CraftServer implements Server
     }
     
     public Player getPlayer(final EntityPlayerMP entity) {
-        return ((IMixinEntity) entity).getBukkitEntity();
+        return ((IMixinEntityPlayerMP)entity).getBukkitEntity();
     }
     
     @Deprecated
@@ -546,47 +546,47 @@ public final class CraftServer implements Server
         return this.playerList.getMaxPlayers();
     }
     
-    @Override @SideOnly(Side.SERVER)
+    @Override
     public int getPort() {
         return this.getConfigInt("server-port", 25565);
     }
     
-    @Override @SideOnly(Side.SERVER)
+    @Override
     public int getViewDistance() {
         return this.getConfigInt("view-distance", 10);
     }
     
-    @Override  @SideOnly(Side.SERVER)
+    @Override
     public String getIp() {
         return this.getConfigString("server-ip", "");
     }
     
-    @Override  @SideOnly(Side.SERVER)
+    @Override
     public String getServerName() {
         return this.getConfigString("server-name", "Unknown Server");
     }
     
-    @Override @SideOnly(Side.SERVER)
+    @Override
     public String getServerId() {
         return this.getConfigString("server-id", "unnamed");
     }
     
-    @Override @SideOnly(Side.SERVER)
+    @Override
     public String getWorldType() {
         return this.getConfigString("level-type", "DEFAULT");
     }
     
-    @Override @SideOnly(Side.SERVER)
+    @Override
     public boolean getGenerateStructures() {
         return this.getConfigBoolean("generate-structures", true);
     }
     
-    @Override @SideOnly(Side.SERVER)
+    @Override
     public boolean getAllowEnd() {
         return this.configuration.getBoolean("settings.allow-end");
     }
     
-    @Override @SideOnly(Side.SERVER)
+    @Override
     public boolean getAllowNether() {
         return this.getConfigBoolean("allow-nether", true);
     }
@@ -599,22 +599,21 @@ public final class CraftServer implements Server
         return this.configuration.getBoolean("settings.query-plugins");
     }
     
-    @Override  @SideOnly(Side.SERVER)
+    @Override
     public boolean hasWhitelist() {
         return this.getConfigBoolean("white-list", false);
     }
-
-    @SideOnly(Side.SERVER)
+    
     private String getConfigString(final String variable, final String defaultValue) {
-        return ((IMixinMinecraftServer) this.console).getPropertyManager().getStringProperty(variable, defaultValue);
+        return ((IMixinMinecraftServer)this.console).getPropertyManager().getStringProperty(variable, defaultValue);
     }
-    @SideOnly(Side.SERVER)
+    
     private int getConfigInt(final String variable, final int defaultValue) {
-        return ((IMixinMinecraftServer) this.console).getPropertyManager().getIntProperty(variable, defaultValue);
+        return ((IMixinMinecraftServer)this.console).getPropertyManager().getIntProperty(variable, defaultValue);
     }
-    @SideOnly(Side.SERVER)
+    
     private boolean getConfigBoolean(final String variable, final boolean defaultValue) {
-        return ((IMixinMinecraftServer) this.console).getPropertyManager().getBooleanProperty(variable, defaultValue);
+        return ((IMixinMinecraftServer)this.console).getPropertyManager().getBooleanProperty(variable, defaultValue);
     }
     
     @Override
@@ -703,13 +702,13 @@ public final class CraftServer implements Server
         return false;
     }
     
-    @Override @SideOnly(Side.SERVER)
+    @Override
     public void reload() {
         ++this.reloadCount;
         this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
         this.commandsConfiguration = YamlConfiguration.loadConfiguration(this.getCommandsConfigFile());
-        final PropertyManager config = new PropertyManager(((IMixinMinecraftServer)this.console).getOptionSet());
-        ((DedicatedServer)this.console).settings = config;
+        final PropertyManager config = ((IMixinMinecraftServer)this.console).getPropertyManager();//new PropertyManager(((IMixinMinecraftServer)this.console).getOptionSet());
+        //((DedicatedServer)this.console).settings = config;
         final boolean animals = config.getBooleanProperty("spawn-animals", this.console.getCanSpawnAnimals());
         final boolean monsters = config.getBooleanProperty("spawn-monsters", this.console./*worlds.get(0)*/worlds[0].getDifficulty() != EnumDifficulty.PEACEFUL);
         final EnumDifficulty difficulty = EnumDifficulty.getDifficultyEnum(config.getIntProperty("difficulty", this.console./*worlds.get(0)*/worlds[0].getDifficulty().ordinal()));
@@ -724,7 +723,7 @@ public final class CraftServer implements Server
         this.ambientSpawn = this.configuration.getInt("spawn-limits.ambient");
         this.warningState = Warning.WarningState.value(this.configuration.getString("settings.deprecated-verbose"));
         this.printSaveWarning = false;
-        ((IMixinMinecraftServer) this.console).setAutosavePeriod(this.configuration.getInt("ticks-per.autosave"));
+        //this.console.autosavePeriod = this.configuration.getInt("ticks-per.autosave"); // TODO
         this.chunkGCPeriod = this.configuration.getInt("chunk-gc.period-in-ticks");
         this.chunkGCLoadThresh = this.configuration.getInt("chunk-gc.load-threshold");
         this.loadIcon();
@@ -744,16 +743,16 @@ public final class CraftServer implements Server
             world.getWorldInfo().setDifficulty(difficulty);
             world.setAllowedSpawnTypes(monsters, animals);
             if (this.getTicksPerAnimalSpawns() < 0) {
-                ((IMixinWorld) world).setTicksPerAnimalSpawns(400L);
+                world.ticksPerAnimalSpawns = 400L;
             }
             else {
-                ((IMixinWorld) world).setTicksPerAnimalSpawns(this.getTicksPerAnimalSpawns());
+                world.ticksPerAnimalSpawns = this.getTicksPerAnimalSpawns();
             }
             if (this.getTicksPerMonsterSpawns() < 0) {
-                ((IMixinWorld) world).setTicksPerMonsterSpawns(1L);
+                world.ticksPerMonsterSpawns = 1L;
             }
             else {
-                ((IMixinWorld) world).setTicksPerMonsterSpawns(this.getTicksPerMonsterSpawns());
+                world.ticksPerMonsterSpawns = this.getTicksPerMonsterSpawns();
             }
         }
         this.pluginManager.clearPlugins();
@@ -1132,7 +1131,7 @@ public final class CraftServer implements Server
     
     @Override
     public void clearRecipes() {
-        CraftingManager.getInstance().getRecipeList().clear();
+        CraftingManager.getInstance().recipes.clear();
         FurnaceRecipes.instance().smeltingList.clear();
         FurnaceRecipes.instance().customRecipes.clear();
         FurnaceRecipes.instance().customExperience.clear();
@@ -1546,7 +1545,7 @@ public final class CraftServer implements Server
         if (!(sender instanceof EntityPlayerMP)) {
             return /*(List<String>)*/ImmutableList.of();
         }
-        final Player player = ((EntityPlayerMP)sender).getBukkitEntity();
+        final Player player = ((IMixinEntityPlayerMP)((EntityPlayerMP)sender)).getBukkitEntity();
         List<String> offers;
         if (message.startsWith("/")) {
             offers = this.tabCompleteCommand(player, message);

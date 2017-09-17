@@ -1,6 +1,8 @@
 package ru.crutch.interfaces.entity.projectile;
 
-public interface IMixinEntityTippedArrow {
+import ru.crutch.interfaces.entity.IMixinEntity;
+
+public interface IMixinEntityTippedArrow extends IMixinEntity {
 
     void refreshEffects();
 

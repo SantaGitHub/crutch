@@ -1,8 +1,11 @@
 {
   "package": "ru.crutch.mixin",
-  "refmap": "mixins.myplugin.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+	"server.MixinMinecraftServer",
+	"server.dedicated.MixinDedicatedServer",
+	"server.dedicated.MixinPropertyManager",
+	"server.management.MixinPlayerList",
   ]
 }

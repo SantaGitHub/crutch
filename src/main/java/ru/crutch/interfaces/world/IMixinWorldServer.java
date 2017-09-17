@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.Packet;
 import net.minecraft.util.EnumParticleTypes;
 
-public interface IMixinWorldServer {
+public interface IMixinWorldServer extends IMixinWorld {
 
 
     void sendParticles(final EntityPlayerMP sender,
