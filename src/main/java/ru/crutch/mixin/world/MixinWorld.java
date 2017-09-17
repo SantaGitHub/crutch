@@ -88,7 +88,7 @@ public abstract class MixinWorld implements IMixinWorld{
     public boolean keepSpawnInMemory = true;
 
     @Override
-    public void setTicksPerMonsterSpawns(final int ticksPerMonsterSpawns){
+    public void setTicksPerMonsterSpawns(long ticksPerMonsterSpawns){
         this.ticksPerMonsterSpawns = ticksPerMonsterSpawns;
     }
     @Override
@@ -97,7 +97,7 @@ public abstract class MixinWorld implements IMixinWorld{
     }
 
     @Override
-    public void setTicksPerAnimalSpawns(final int ticksPerAnimalSpawns){
+    public void setTicksPerAnimalSpawns(long ticksPerAnimalSpawns){
         this.ticksPerAnimalSpawns = ticksPerAnimalSpawns;
     }
     @Override

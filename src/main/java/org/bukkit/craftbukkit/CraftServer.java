@@ -196,6 +196,7 @@ import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import ru.crutch.interfaces.server.management.IMixinPlayerList;
+import ru.crutch.interfaces.world.IMixinWorld;
 
 public final class CraftServer implements Server
 {
@@ -444,7 +445,7 @@ public final class CraftServer implements Server
     
     @Override
     public String getName() {
-        return "CraftBukkit";
+        return this.serverName;
     }
     
     @Override
@@ -499,14 +500,14 @@ public final class CraftServer implements Server
     public Player getPlayerExact(final String name) {
         Validate.notNull((Object)name, "Name cannot be null");
         final EntityPlayerMP player = this.playerList.getPlayerByUsername(name);
-        return (Player) ((player != null) ? player.getBukkitEntity() : null);
+        return (Player) ((player != null) ? ((IMixinEntity) player).getBukkitEntity() : null);
     }
     
     @Override
     public Player getPlayer(final UUID id) {
         final EntityPlayerMP player = this.playerList.getPlayerByUUID(id);
         if (player != null) {
-            return (Player) player.getBukkitEntity();
+            return ((IMixinEntity) player).getBukkitEntity();
         }
         return null;
     }
@@ -517,7 +518,7 @@ public final class CraftServer implements Server
     }
     
     public Player getPlayer(final EntityPlayerMP entity) {
-        return (Player) entity.getBukkitEntity();
+        return ((IMixinEntity) entity).getBukkitEntity();
     }
     
     @Deprecated
@@ -545,47 +546,47 @@ public final class CraftServer implements Server
         return this.playerList.getMaxPlayers();
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public int getPort() {
         return this.getConfigInt("server-port", 25565);
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public int getViewDistance() {
         return this.getConfigInt("view-distance", 10);
     }
     
-    @Override
+    @Override  @SideOnly(Side.SERVER)
     public String getIp() {
         return this.getConfigString("server-ip", "");
     }
     
-    @Override
+    @Override  @SideOnly(Side.SERVER)
     public String getServerName() {
         return this.getConfigString("server-name", "Unknown Server");
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public String getServerId() {
         return this.getConfigString("server-id", "unnamed");
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public String getWorldType() {
         return this.getConfigString("level-type", "DEFAULT");
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public boolean getGenerateStructures() {
         return this.getConfigBoolean("generate-structures", true);
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public boolean getAllowEnd() {
         return this.configuration.getBoolean("settings.allow-end");
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public boolean getAllowNether() {
         return this.getConfigBoolean("allow-nether", true);
     }
@@ -598,21 +599,22 @@ public final class CraftServer implements Server
         return this.configuration.getBoolean("settings.query-plugins");
     }
     
-    @Override
+    @Override  @SideOnly(Side.SERVER)
     public boolean hasWhitelist() {
         return this.getConfigBoolean("white-list", false);
     }
-    
+
+    @SideOnly(Side.SERVER)
     private String getConfigString(final String variable, final String defaultValue) {
-        return this.console.getPropertyManager().getStringProperty(variable, defaultValue);
+        return ((IMixinMinecraftServer) this.console).getPropertyManager().getStringProperty(variable, defaultValue);
     }
-    
+    @SideOnly(Side.SERVER)
     private int getConfigInt(final String variable, final int defaultValue) {
-        return this.console.getPropertyManager().getIntProperty(variable, defaultValue);
+        return ((IMixinMinecraftServer) this.console).getPropertyManager().getIntProperty(variable, defaultValue);
     }
-    
+    @SideOnly(Side.SERVER)
     private boolean getConfigBoolean(final String variable, final boolean defaultValue) {
-        return this.console.getPropertyManager().getBooleanProperty(variable, defaultValue);
+        return ((IMixinMinecraftServer) this.console).getPropertyManager().getBooleanProperty(variable, defaultValue);
     }
     
     @Override
@@ -701,7 +703,7 @@ public final class CraftServer implements Server
         return false;
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public void reload() {
         ++this.reloadCount;
         this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
@@ -722,7 +724,7 @@ public final class CraftServer implements Server
         this.ambientSpawn = this.configuration.getInt("spawn-limits.ambient");
         this.warningState = Warning.WarningState.value(this.configuration.getString("settings.deprecated-verbose"));
         this.printSaveWarning = false;
-        this.console.autosavePeriod = this.configuration.getInt("ticks-per.autosave");
+        ((IMixinMinecraftServer) this.console).setAutosavePeriod(this.configuration.getInt("ticks-per.autosave"));
         this.chunkGCPeriod = this.configuration.getInt("chunk-gc.period-in-ticks");
         this.chunkGCLoadThresh = this.configuration.getInt("chunk-gc.load-threshold");
         this.loadIcon();
@@ -739,19 +741,19 @@ public final class CraftServer implements Server
             this.logger.log(Level.WARNING, "Failed to load banned-players.json, " + ex.getMessage());
         }
         for (final WorldServer world : /*this.console.worlds*/this.console.worlds) {
-            world.worldInfo.setDifficulty(difficulty);
+            world.getWorldInfo().setDifficulty(difficulty);
             world.setAllowedSpawnTypes(monsters, animals);
             if (this.getTicksPerAnimalSpawns() < 0) {
-                world.ticksPerAnimalSpawns = 400L;
+                ((IMixinWorld) world).setTicksPerAnimalSpawns(400L);
             }
             else {
-                world.ticksPerAnimalSpawns = this.getTicksPerAnimalSpawns();
+                ((IMixinWorld) world).setTicksPerAnimalSpawns(this.getTicksPerAnimalSpawns());
             }
             if (this.getTicksPerMonsterSpawns() < 0) {
-                world.ticksPerMonsterSpawns = 1L;
+                ((IMixinWorld) world).setTicksPerMonsterSpawns(1L);
             }
             else {
-                world.ticksPerMonsterSpawns = this.getTicksPerMonsterSpawns();
+                ((IMixinWorld) world).setTicksPerMonsterSpawns(this.getTicksPerMonsterSpawns());
             }
         }
         this.pluginManager.clearPlugins();
@@ -1130,7 +1132,7 @@ public final class CraftServer implements Server
     
     @Override
     public void clearRecipes() {
-        CraftingManager.getInstance().recipes.clear();
+        CraftingManager.getInstance().getRecipeList().clear();
         FurnaceRecipes.instance().smeltingList.clear();
         FurnaceRecipes.instance().customRecipes.clear();
         FurnaceRecipes.instance().customExperience.clear();

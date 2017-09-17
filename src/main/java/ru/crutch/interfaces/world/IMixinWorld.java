@@ -22,9 +22,9 @@ public interface IMixinWorld {
 
     long getTicksPerAnimalSpawns();
 
-    void setTicksPerAnimalSpawns(final int ticksPerAnimalSpawns);
+    void setTicksPerAnimalSpawns(long ticksPerAnimalSpawns);
 
-    void setTicksPerMonsterSpawns(final int ticksPerMonsterSpawns);
+    void setTicksPerMonsterSpawns(long ticksPerMonsterSpawns);
 
     long getTicksPerMonsterSpawns();
 
