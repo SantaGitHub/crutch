@@ -1515,12 +1515,12 @@ public class CraftWorld implements World
     
     @Override
     public boolean getAllowAnimals() {
-        return ((IMixinWorld) this.world).getSpawnPeacefulMobs();
+        return this.world.spawnPeacefulMobs;
     }
     
     @Override
     public boolean getAllowMonsters() {
-        return ((IMixinWorld) this.world).getSpawnHostileMobs();
+        return this.world.spawnHostileMobs;
     }
     
     @Override

@@ -1,5 +1,6 @@
 package ru.crutch.mixin.server;
 
+import jline.console.ConsoleReader;
 import net.minecraft.server.dedicated.PropertyManager;
 import net.minecraft.server.management.PlayerList;
 
@@ -30,6 +31,14 @@ public abstract class MixinMinecraftServer implements IMixinMinecraftServer {
 	public CraftServer server;
 	OptionSet options;
 	public int autosavePeriod;
+
+	public ConsoleReader reader;
+
+	@Override
+	public ConsoleReader getReader(){
+		return this.reader;
+	}
+
 
 	@Override
 	public int getAutosavePeriod(){

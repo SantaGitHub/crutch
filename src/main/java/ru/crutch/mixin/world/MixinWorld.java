@@ -78,7 +78,7 @@ public abstract class MixinWorld implements IMixinWorld{
     }
     
     @Shadow public boolean spawnPeacefulMobs;
-    @Shadow protected boolean spawnHostileMobs;
+    @Shadow public boolean spawnHostileMobs;
     public long ticksPerAnimalSpawns;
     public long ticksPerMonsterSpawns;
 
@@ -88,7 +88,7 @@ public abstract class MixinWorld implements IMixinWorld{
     public boolean keepSpawnInMemory = true;
 
     @Override
-    public void setTicksPerMonsterSpawns(final int ticksPerMonsterSpawns){
+    public void setTicksPerMonsterSpawns(long ticksPerMonsterSpawns){
         this.ticksPerMonsterSpawns = ticksPerMonsterSpawns;
     }
     @Override
@@ -97,7 +97,7 @@ public abstract class MixinWorld implements IMixinWorld{
     }
 
     @Override
-    public void setTicksPerAnimalSpawns(final int ticksPerAnimalSpawns){
+    public void setTicksPerAnimalSpawns(long ticksPerAnimalSpawns){
         this.ticksPerAnimalSpawns = ticksPerAnimalSpawns;
     }
     @Override
@@ -115,15 +115,6 @@ public abstract class MixinWorld implements IMixinWorld{
         this.keepSpawnInMemory = flag;
     }
 
-    @Override
-    public boolean getSpawnHostileMobs(){
-        return this.spawnHostileMobs;
-    }
-
-    @Override
-    public boolean getSpawnPeacefulMobs(){
-        return this.spawnPeacefulMobs;
-    }
 
 
 
