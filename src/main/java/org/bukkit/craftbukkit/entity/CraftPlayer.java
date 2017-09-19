@@ -4,6 +4,8 @@
 
 package org.bukkit.craftbukkit.entity;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.bukkit.metadata.MetadataStoreBase;
 import net.minecraft.network.play.server.SPacketParticles;
 import org.bukkit.craftbukkit.CraftParticle;
@@ -120,7 +122,7 @@ import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.bukkit.entity.Player;
 
 @DelegateDeserialization(CraftOfflinePlayer.class)
-public class CraftPlayer extends CraftHumanEntity implements Player
+public abstract class CraftPlayer extends CraftHumanEntity implements Player
 {
     private long firstPlayed;
     private long lastPlayed;
@@ -156,7 +158,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     public boolean isOp() {
         return this.server.getHandle().canSendCommands(this.getProfile());
     }
-    
+
+    @SideOnly(Side.SERVER)
     @Override
     public void setOp(final boolean value) {
         if (value == this.isOp()) {

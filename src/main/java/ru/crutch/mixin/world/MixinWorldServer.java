@@ -8,13 +8,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import ru.crutch.interfaces.entity.IMixinEntity;
 import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.world.IMixinWorldServer;
 
 @Mixin(WorldServer.class)
 public abstract class MixinWorldServer implements IMixinWorldServer {
+
+
 
     @Shadow
     public abstract void sendPacketWithinDistance(EntityPlayerMP player, boolean longDistance, double x, double y, double z, Packet<?> packetIn);

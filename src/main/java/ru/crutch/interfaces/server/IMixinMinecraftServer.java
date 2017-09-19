@@ -1,5 +1,6 @@
 package ru.crutch.interfaces.server;
 
+import jline.console.ConsoleReader;
 import net.minecraft.server.dedicated.PropertyManager;
 import net.minecraft.server.management.PlayerList;
 
@@ -13,4 +14,6 @@ public interface IMixinMinecraftServer {
 	PropertyManager getPropertyManager();
 	void setAutosavePeriod(int per);
     int getAutosavePeriod();
+	ConsoleReader getReader();
+
 }

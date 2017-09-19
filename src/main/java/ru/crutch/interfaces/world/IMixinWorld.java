@@ -51,12 +51,9 @@ public interface IMixinWorld {
 
     Block getType(int x, int y, int z);
 
-    boolean getSpawnPeacefulMobs();
-
     boolean getKeepSpawnInMemory();
 
     void setKeepSpawnInMemory(boolean flag);
 
-    boolean getSpawnHostileMobs();
 
 }

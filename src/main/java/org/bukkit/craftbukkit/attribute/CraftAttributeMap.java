@@ -26,7 +26,7 @@ public class CraftAttributeMap implements Attributable
     
     @Override
     public AttributeInstance getAttribute(final Attribute attribute) {
-        Preconditions.checkArgument(attribute != null, (Object)"attribute");
+        Preconditions.checkArgument(attribute != null, "attribute");
         final IAttributeInstance nms = this.handle.getAttributeInstanceByName(toMinecraft(attribute.name()));
         return (nms == null) ? null : new CraftAttributeInstance(nms, attribute);
     }
