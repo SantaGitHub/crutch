@@ -10,16 +10,5 @@ import ru.crutch.mixin.entity.MixinEntity;
 @Mixin(EntityItem.class)
 public abstract class MixinEntityItem extends MixinEntity implements IMixinEntityItem {
 
-	@Shadow
-	int delayBeforeCanPickup;
 
-	@Override
-	public void setdelayBeforeCanPickup(int i) {
-		delayBeforeCanPickup = i;
-	}
-
-	@Override
-	public int getdelayBeforeCanPickup() {
-		return this.delayBeforeCanPickup;
-	}
 }

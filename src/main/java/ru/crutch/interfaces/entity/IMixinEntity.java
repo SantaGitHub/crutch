@@ -15,10 +15,6 @@ public interface IMixinEntity {
 
     boolean getForceExplosionKnockback();
 
-    int getFireTicks();
-
-    void setFireTicks(int ticks);
-
     CraftEntity getBukkitEntity();
 
     ProjectileSource getProjectileSource();

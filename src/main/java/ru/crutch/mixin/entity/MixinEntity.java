@@ -15,8 +15,6 @@ import ru.crutch.interfaces.world.IMixinWorld;
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IMixinEntity {
 	@Shadow
-	private int fire;
-	@Shadow
 	public World world;
 	@Shadow
 	public float rotationYaw;
@@ -49,16 +47,6 @@ public abstract class MixinEntity implements IMixinEntity {
 
 	public void setForceExplosionKnockback(boolean flag) {
 		this.forceExplosionKnockback = flag;
-	}
-
-	@Override
-	public int getFireTicks() {
-		return fire;
-	}
-
-	@Override
-	public void setFireTicks(int ticks) {
-		this.fire = ticks;
 	}
 
 	@Override

@@ -435,12 +435,12 @@ public class CraftWorld implements World
             return false;
         }
         final long chunkKey = ChunkPos.asLong(x, z);
-        ((IMixinChunkProviderServer)this.world.getChunkProvider()).getdroppedChunksSet().remove(chunkKey);
+        this.world.getChunkProvider().droppedChunksSet.remove(chunkKey);
         net.minecraft.world.chunk.Chunk chunk = null;
         chunk = this.world.getChunkProvider().chunkGenerator.provideChunk(x, z);
         final PlayerChunkMapEntry playerChunk = this.world.getPlayerChunkMap().getEntry(x, z);
         if (playerChunk != null) {
-            ((IMixinPlayerChunkMapEntry) playerChunk).setChunk(chunk);
+            playerChunk.chunk = chunk;
         }
         if (chunk != null) {
             this.world.getChunkProvider().id2ChunkMap.put(chunkKey, /*(Object)*/chunk);
@@ -500,7 +500,7 @@ public class CraftWorld implements World
         Validate.notNull((Object)item, "Cannot drop a Null item.");
         Validate.isTrue(item.getTypeId() != 0, "Cannot drop AIR.");
         final EntityItem entity = new EntityItem(this.world, loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(item));
-        ((IMixinEntityItem) entity).setdelayBeforeCanPickup(10);
+        entity.delayBeforeCanPickup = 10;
         ((IMixinWorld) this.world).addEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
         return new CraftItem(((IMixinWorld) this.world).getServer(), entity);
     }
@@ -1834,7 +1834,7 @@ public class CraftWorld implements World
             if (this.isChunkInUse(chunk.xPosition, chunk.zPosition)) {
                 continue;
             }
-            if (((IMixinChunkProviderServer) cps).getdroppedChunksSet().contains(ChunkPos.asLong(chunk.xPosition, chunk.zPosition))) {
+            if (cps.droppedChunksSet.contains(ChunkPos.asLong(chunk.xPosition, chunk.zPosition))) {
                 continue;
             }
             cps.unload(chunk);

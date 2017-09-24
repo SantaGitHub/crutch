@@ -9,11 +9,5 @@ import java.util.Set;
 @Mixin(net.minecraft.world.gen.ChunkProviderServer.class)
 public class MixinChunkProviderServer implements IMixinChunkProviderServer {
 
-    @Shadow
-    Set<Long> droppedChunksSet;
 
-    @Override
-    public Set<Long> getdroppedChunksSet() {
-        return droppedChunksSet;
-    }
 }

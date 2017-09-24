@@ -32,8 +32,13 @@ public abstract class MixinMinecraftServer implements IMixinMinecraftServer {
 	OptionSet options;
 	public int autosavePeriod;
 
+	public org.bukkit.command.ConsoleCommandSender console;
 	public ConsoleReader reader;
 
+	@Override
+	public org.bukkit.command.ConsoleCommandSender getConsole(){
+		return this.console;
+	}
 	@Override
 	public ConsoleReader getReader(){
 		return this.reader;

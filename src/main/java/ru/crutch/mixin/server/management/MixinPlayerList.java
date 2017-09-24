@@ -25,6 +25,4 @@ import java.util.List;
 @Mixin(PlayerList.class)
 public abstract class MixinPlayerList implements IMixinPlayerList {
 
-	@Shadow @Final
-	public List<EntityPlayerMP> playerEntityList;
 }

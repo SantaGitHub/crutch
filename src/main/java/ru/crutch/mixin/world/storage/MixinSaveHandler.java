@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.CraftServer;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,13 +28,19 @@ import java.util.UUID;
 @Mixin(net.minecraft.world.storage.SaveHandler.class)
 public abstract class MixinSaveHandler implements IMixinSaveHandler {
 
-
+    @Shadow @Final
+    public File playersDirectory;
     private static Logger logger;
     @Shadow private File worldDirectory;
 
     @Shadow public abstract WorldInfo loadWorldInfo();
 
     private UUID uuid = null;
+
+    @Override
+    public File getPlayerDir(){
+        return this.playersDirectory;
+    }
 
     @Override
     public UUID getUUID() {

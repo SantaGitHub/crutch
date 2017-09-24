@@ -197,7 +197,10 @@ import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import ru.crutch.interfaces.server.management.IMixinPlayerList;
+import ru.crutch.interfaces.server.management.IMixinUserList;
 import ru.crutch.interfaces.world.IMixinWorld;
+import ru.crutch.interfaces.world.storage.IMixinMapData;
+import ru.crutch.interfaces.world.storage.IMixinSaveHandler;
 
 public final class CraftServer implements Server
 {
@@ -1135,16 +1138,16 @@ public final class CraftServer implements Server
     
     @Override
     public void clearRecipes() {
-        CraftingManager.getInstance().recipes.clear();
-        FurnaceRecipes.instance().smeltingList.clear();
+        CraftingManager.getInstance().getRecipeList().clear();
+        FurnaceRecipes.instance().getSmeltingList().clear();
         FurnaceRecipes.instance().customRecipes.clear();
         FurnaceRecipes.instance().customExperience.clear();
     }
     
     @Override
     public void resetRecipes() {
-        CraftingManager.getInstance().recipes = new CraftingManager().recipes;
-        FurnaceRecipes.instance().smeltingList = new FurnaceRecipes().smeltingList;
+        CraftingManager.getInstance().getRecipeList().addAll(CraftingManager.getInstance().getRecipeList());
+        FurnaceRecipes.instance().getSmeltingList() = new FurnaceRecipes().smeltingList;
         FurnaceRecipes.instance().customRecipes.clear();
         FurnaceRecipes.instance().customExperience.clear();
     }
@@ -1255,7 +1258,7 @@ public final class CraftServer implements Server
         if (worldmap == null) {
             return null;
         }
-        return worldmap.mapView;
+        return ((IMixinMapData) worldmap).getMapView();
     }
     
     @Override
@@ -1263,7 +1266,7 @@ public final class CraftServer implements Server
         Validate.notNull((Object)world, "World cannot be null");
         final net.minecraft.item.ItemStack stack = new net.minecraft.item.ItemStack(Items.MAP, 1, -1);
         final MapData worldmap = Items.FILLED_MAP.getMapData(stack, ((CraftWorld)world).getHandle());
-        return worldmap.mapView;
+        return ((IMixinMapData) worldmap).getMapView();
     }
     
     @Override
@@ -1351,7 +1354,7 @@ public final class CraftServer implements Server
     @Override
     public Set<OfflinePlayer> getBannedPlayers() {
         final Set<OfflinePlayer> result = new HashSet<OfflinePlayer>();
-        for (final UserListEntry<GameProfile> entry : (/*(UserList<K, UserListBansEntry>)*/this.playerList.getBannedPlayers()).getValuesCB()) {
+        for ( final UserListEntry<GameProfile> entry : ((IMixinUserList) this.playerList.getBannedPlayers()).getValuesCB()) {
             result.add(this.getOfflinePlayer(entry.getValue()));
         }
         return result;
@@ -1369,11 +1372,11 @@ public final class CraftServer implements Server
             }
         }
     }
-    
-    @Override
+
+    @Override @SideOnly(Side.SERVER)
     public void setWhitelist(final boolean value) {
         this.playerList.setWhiteListEnabled(value);
-        this.console.getPropertyManager().setProperty("white-list", value);
+        ((IMixinMinecraftServer) this.console).getPropertyManager().setProperty("white-list", value);
     }
     
     @Override
@@ -1388,13 +1391,13 @@ public final class CraftServer implements Server
     @Override
     public Set<OfflinePlayer> getOperators() {
         final Set<OfflinePlayer> result = new HashSet<OfflinePlayer>();
-        for (final UserListEntry<GameProfile> entry : (/*(UserList<K, UserListOpsEntry>)*/this.playerList.getOppedPlayers()).getValuesCB()) {
+        for (final UserListEntry<GameProfile> entry : ((IMixinUserList)this.playerList.getOppedPlayers()).getValuesCB()) {
             result.add(this.getOfflinePlayer(entry.getValue()));
         }
         return result;
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public void reloadWhitelist() {
         this.playerList.reloadWhitelist();
     }
@@ -1408,13 +1411,13 @@ public final class CraftServer implements Server
     public void setDefaultGameMode(final GameMode mode) {
         Validate.notNull((Object)mode, "Mode cannot be null");
         for (final World world : this.getWorlds()) {
-            ((CraftWorld)world).getHandle().worldInfo.setGameType(GameType.getByID(mode.getValue()));
+            ((CraftWorld)world).getHandle().getWorldInfo().setGameType(GameType.getByID(mode.getValue()));
         }
     }
     
     @Override
     public ConsoleCommandSender getConsoleSender() {
-        return this.console.console;
+        return ((IMixinMinecraftServer) this.console).getConsole();
     }
     
     public EntityMetadataStore getEntityMetadata() {
@@ -1443,7 +1446,7 @@ public final class CraftServer implements Server
     @Override
     public OfflinePlayer[] getOfflinePlayers() {
         final SaveHandler storage = (SaveHandler)this.console./*worlds.get(0)*/worlds[0].getSaveHandler();
-        final String[] files = storage.getPlayerDir().list(new DatFileFilter());
+        final String[] files = ((IMixinSaveHandler) storage).getPlayerDir().list(new DatFileFilter());
         final Set<OfflinePlayer> players = new HashSet<OfflinePlayer>();
         String[] array;
         for (int length = (array = files).length, i = 0; i < length; ++i) {
@@ -1606,7 +1609,7 @@ public final class CraftServer implements Server
     }
     
     public void checkSaveState() {
-        if (this.playerCommandState || this.printSaveWarning || this.console.autosavePeriod <= 0) {
+        if (this.playerCommandState || this.printSaveWarning || ((IMixinMinecraftServer) this.console).getAutosavePeriod() <= 0) {
             return;
         }
         this.printSaveWarning = true;

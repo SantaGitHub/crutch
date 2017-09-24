@@ -6,6 +6,5 @@ import net.minecraft.world.chunk.Chunk;
 import java.util.List;
 
 public interface IMixinPlayerChunkMapEntry {
-    void setChunk(Chunk chunk);
-    List<EntityPlayerMP> getPlayers();
+
 }

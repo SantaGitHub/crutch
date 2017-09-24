@@ -20,6 +20,7 @@ import java.util.List;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import java.util.Map;
 import org.bukkit.map.MapView;
+import ru.crutch.mixin.world.storage.MixinMapData;
 
 public final class CraftMapView implements MapView
 {
@@ -67,9 +68,9 @@ public final class CraftMapView implements MapView
     
     @Override
     public World getWorld() {
-        final byte dimension = (byte) this.worldMap.dimension;
+        final int dimension = this.worldMap.dimension;
         for (final World world : Bukkit.getServer().getWorlds()) {
-            if (((CraftWorld)world).getHandle().dimension == dimension) {
+            if (((CraftWorld)world).getHandle().provider.getDimension() == dimension) {
                 return world;
             }
         }
@@ -78,7 +79,7 @@ public final class CraftMapView implements MapView
     
     @Override
     public void setWorld(final World world) {
-        this.worldMap.dimension = (byte)((CraftWorld)world).getHandle().dimension;
+        this.worldMap.dimension = (byte)((CraftWorld)world).getHandle().provider.getDimension();
     }
     
     @Override
