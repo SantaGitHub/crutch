@@ -9,7 +9,7 @@ import net.minecraft.entity.monster.EntityGolem;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Golem;
 
-public class CraftGolem extends CraftCreature implements Golem
+public abstract class CraftGolem extends CraftCreature implements Golem
 {
     public CraftGolem(final CraftServer server, final EntityGolem entity) {
         super(server, entity);

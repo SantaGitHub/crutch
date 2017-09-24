@@ -10,8 +10,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EntityCreature;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Creature;
+import ru.crutch.interfaces.entity.IMixinEntity;
 
-public class CraftCreature extends CraftLivingEntity implements Creature
+public abstract class CraftCreature extends CraftLivingEntity implements Creature
 {
     public CraftCreature(final CraftServer server, final EntityCreature entity) {
         super(server, entity);

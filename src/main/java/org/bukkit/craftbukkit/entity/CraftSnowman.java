@@ -10,7 +10,7 @@ import net.minecraft.entity.monster.EntitySnowman;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Snowman;
 
-public class CraftSnowman extends CraftGolem implements Snowman
+public abstract class CraftSnowman extends CraftGolem implements Snowman
 {
     public CraftSnowman(final CraftServer server, final EntitySnowman entity) {
         super(server, entity);
