@@ -27,7 +27,7 @@ public abstract class MixinMapInfo {
     public boolean isDirty;
     @Shadow int tick;
 
-    @Redirect(method = "<init>", at=@At(value = "RETURN", target = "Lnet/minecraft/world/storage/MapData;getPacket()Lnet/minecraft/network/Packet;"))
+    @Redirect(method = "getPacket", at=@At("INVOKE"))
     public Packet<?> getPacket(ItemStack stack) {
         org.bukkit.craftbukkit.map.RenderData render = ((IMixinMapData) this).getMapView().render((org.bukkit.craftbukkit.entity.CraftPlayer) ((IMixinEntity) this.entityplayerObj).getBukkitEntity());
         java.util.Collection<Vec4b> icons = new java.util.ArrayList<Vec4b>();

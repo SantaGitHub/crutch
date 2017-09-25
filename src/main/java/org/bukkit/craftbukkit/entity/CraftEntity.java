@@ -118,6 +118,10 @@ import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.entity.Entity;
 import ru.crutch.entity.CraftCustomEntity;
 import ru.crutch.entity.CustomCraftProjectile;
+import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
+import ru.crutch.interfaces.entity.projectile.IMixinEntityTippedArrow;
+import ru.crutch.interfaces.world.IMixinWorld;
 
 public abstract class CraftEntity implements Entity
 {
@@ -294,7 +298,7 @@ public abstract class CraftEntity implements Entity
                 return new CraftExperienceOrb(server, (EntityXPOrb)entity);
             }
             if (entity instanceof EntityTippedArrow) {
-                if (((EntityTippedArrow)entity).isTipped()) {
+                if (((IMixinEntityTippedArrow)entity).isTipped()) {
                     return new CraftTippedArrow(server, (EntityTippedArrow)entity);
                 }
                 return new CraftArrow(server, (EntityArrow)entity);
@@ -463,14 +467,14 @@ public abstract class CraftEntity implements Entity
     @Override
     public boolean isOnGround() {
         if (this.entity instanceof EntityArrow) {
-            return ((EntityArrow)this.entity).isInGround();
+            return ((EntityArrow)this.entity).inGround;
         }
         return this.entity.onGround;
     }
     
     @Override
     public World getWorld() {
-        return this.entity.worldObj.getWorld();
+        return ((IMixinWorld) this.entity.world).getWorld();
     }
     
     @Override
@@ -484,7 +488,7 @@ public abstract class CraftEntity implements Entity
             return false;
         }
         this.entity.dismountRidingEntity();
-        this.entity.worldObj = ((CraftWorld)location.getWorld()).getHandle();
+        this.entity.world = ((CraftWorld)location.getWorld()).getHandle();
         this.entity.setPositionAndRotation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         return true;
     }
@@ -501,10 +505,10 @@ public abstract class CraftEntity implements Entity
     
     @Override
     public List<Entity> getNearbyEntities(final double x, final double y, final double z) {
-        final List<net.minecraft.entity.Entity> notchEntityList = this.entity.worldObj.getEntitiesInAABBexcluding(this.entity, this.entity.getEntityBoundingBox().expand(x, y, z), null);
+        final List<net.minecraft.entity.Entity> notchEntityList = this.entity.world.getEntitiesInAABBexcluding(this.entity, this.entity.getEntityBoundingBox().expand(x, y, z), null);
         final List<Entity> bukkitEntityList = new ArrayList<Entity>(notchEntityList.size());
         for (final net.minecraft.entity.Entity e : notchEntityList) {
-            bukkitEntityList.add(e.getBukkitEntity());
+            bukkitEntityList.add(((IMixinEntity) e).getBukkitEntity());
         }
         return bukkitEntityList;
     }
@@ -541,7 +545,7 @@ public abstract class CraftEntity implements Entity
     
     @Override
     public boolean isValid() {
-        return this.entity.isEntityAlive() && this.entity.valid;
+        return this.entity.isEntityAlive() && ((IMixinEntity) this.entity).getValid();
     }
     
     @Override
@@ -559,7 +563,7 @@ public abstract class CraftEntity implements Entity
     
     @Override
     public Entity getPassenger() {
-        return this.isEmpty() ? null : this.getHandle().riddenByEntities.get(0).getBukkitEntity();
+        return this.isEmpty() ? null : ((IMixinEntityPlayerMP) this.getHandle().riddenByEntities.get(0)).getBukkitEntity();
     }
     
     @Override
@@ -631,7 +635,7 @@ public abstract class CraftEntity implements Entity
     
     @Override
     public void playEffect(final EntityEffect type) {
-        this.getHandle().worldObj.setEntityState(this.getHandle(), type.getData());
+        this.getHandle().world.setEntityState(this.getHandle(), type.getData());
     }
     
     public void setHandle(final net.minecraft.entity.Entity entity) {
@@ -701,7 +705,7 @@ public abstract class CraftEntity implements Entity
         if (!this.isInsideVehicle()) {
             return null;
         }
-        return this.getHandle().getLowestRidingEntity().getBukkitEntity();
+        return ((IMixinEntity) this.getHandle().getLowestRidingEntity()).getBukkitEntity();
     }
     
     @Override
@@ -845,12 +849,12 @@ public abstract class CraftEntity implements Entity
     
     @Override
     public boolean hasGravity() {
-        return !this.getHandle().func_189652_ae();
+        return !this.getHandle().hasNoGravity();
     }
     
     @Override
     public void setGravity(final boolean gravity) {
-        this.getHandle().func_189654_d(!gravity);
+        this.getHandle().setNoGravity(!gravity);
     }
     
     private static PermissibleBase getPermissibleBase() {

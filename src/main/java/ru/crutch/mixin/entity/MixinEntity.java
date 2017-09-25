@@ -40,6 +40,12 @@ public abstract class MixinEntity implements IMixinEntity {
 	protected CraftPlayer bukkitEntity;
 	public ProjectileSource projectileSource;
 	public String spawnReason;
+	public boolean valid;
+
+	@Override
+	public boolean getValid(){
+		return this.valid;
+	}
 
 	public boolean getForceExplosionKnockback() {
 		return this.forceExplosionKnockback;

@@ -77,8 +77,14 @@ import net.minecraft.entity.EntityLivingBase;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.inventory.CraftEntityEquipment;
 import org.bukkit.entity.LivingEntity;
+import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.entity.IMixinEntityLivingBase;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
+import ru.crutch.interfaces.entity.projectile.IMixinEntityFireball;
+import ru.crutch.interfaces.entity.projectile.IMixinEntityTippedArrow;
+import ru.crutch.interfaces.world.IMixinWorld;
 
-public class CraftLivingEntity extends CraftEntity implements LivingEntity
+public abstract class CraftLivingEntity extends CraftEntity implements LivingEntity
 {
     private CraftEntityEquipment equipment;
     
@@ -236,12 +242,12 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity
     
     @Override
     public int getMaximumAir() {
-        return this.getHandle().maxAirTicks;
+        return ((IMixinEntityLivingBase) this.getHandle()).getMaxAirTicks();
     }
     
     @Override
     public void setMaximumAir(final int ticks) {
-        this.getHandle().maxAirTicks = ticks;
+        ((IMixinEntityLivingBase) this.getHandle()).setMaxAirTicks(ticks);
     }
     
     @Override
@@ -314,7 +320,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity
     
     @Override
     public Player getKiller() {
-        return (this.getHandle().attackingPlayer == null) ? null : ((Player)this.getHandle().attackingPlayer.getBukkitEntity());
+        return (this.getHandle().attackingPlayer == null) ? null : ((IMixinEntityPlayerMP) this.getHandle().attackingPlayer).getBukkitEntity();
     }
     
     @Override
@@ -392,7 +398,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity
         else if (Arrow.class.isAssignableFrom(projectile)) {
             if (TippedArrow.class.isAssignableFrom(projectile)) {
                 launch = new EntityTippedArrow(world, this.getHandle());
-                ((EntityTippedArrow)launch).setType(CraftPotionUtil.fromBukkit(new PotionData(PotionType.WATER, false, false)));
+                ((IMixinEntityTippedArrow) launch).setType(CraftPotionUtil.fromBukkit(new PotionData(PotionType.WATER, false, false)));
             }
             else if (SpectralArrow.class.isAssignableFrom(projectile)) {
                 launch = new EntitySpectralArrow(world, this.getHandle());
@@ -433,15 +439,15 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity
             else {
                 launch = new EntityLargeFireball(world, this.getHandle(), direction.getX(), direction.getY(), direction.getZ());
             }
-            ((EntityFireball)launch).projectileSource = this;
+            ((IMixinEntityFireball)launch).setProjectileSource(this);
             launch.setLocationAndAngles(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         }
         Validate.notNull((Object)launch, "Projectile not supported");
         if (velocity != null) {
-            ((Projectile)launch.getBukkitEntity()).setVelocity(velocity);
+            ((IMixinEntity) ((Projectile)launch)).getBukkitEntity().setVelocity(velocity);
         }
-        world.spawnEntityInWorld(launch);
-        return (T)launch.getBukkitEntity();
+        ((IMixinWorld) world).spawnEntityInWorld(launch);
+        return (T)((IMixinEntity) launch).getBukkitEntity();
     }
     
     @Override
@@ -498,7 +504,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity
         if (!this.isLeashed()) {
             throw new IllegalStateException("Entity not leashed");
         }
-        return ((EntityLiving)this.getHandle()).getLeashedToEntity().getBukkitEntity();
+        return ((IMixinEntity) ((EntityLiving)this.getHandle()).getLeashedToEntity()).getBukkitEntity();
     }
     
     private boolean unleash() {
@@ -585,7 +591,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity
     
     @Override
     public AttributeInstance getAttribute(final Attribute attribute) {
-        return this.getHandle().craftAttributes.getAttribute(attribute);
+        return ((IMixinEntityLivingBase) this.getHandle()).getCraftAttributes().getAttribute(attribute);
     }
     
     @Override
@@ -602,11 +608,11 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity
     
     @Override
     public void setCollidable(final boolean collidable) {
-        this.getHandle().collides = collidable;
+        ((IMixinEntityLivingBase) this.getHandle()).setCollides(collidable);
     }
     
     @Override
     public boolean isCollidable() {
-        return this.getHandle().collides;
+        return ((IMixinEntityLivingBase) this.getHandle()).getCollides();
     }
 }

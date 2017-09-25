@@ -61,8 +61,9 @@ import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.craftbukkit.inventory.CraftInventory;
 import org.bukkit.craftbukkit.inventory.CraftInventoryPlayer;
 import org.bukkit.entity.HumanEntity;
+import ru.crutch.inventory.ICBInventory;
 
-public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
+public abstract class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
 {
     private CraftInventoryPlayer inventory;
     private final CraftInventory enderChest;
@@ -75,7 +76,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
         this.perm = new PermissibleBase(this);
         this.mode = server.getDefaultGameMode();
         this.inventory = new CraftInventoryPlayer(entity.inventory);
-        this.enderChest = new CraftInventory(entity.getInventoryEnderChest());
+        this.enderChest = new CraftInventory((ICBInventory) entity.getInventoryEnderChest());
     }
     
     @Override
@@ -361,7 +362,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
         if (location == null) {
             location = this.getLocation();
         }
-        this.getHandle().displayGui(new BlockWorkbench.InterfaceCraftingTable(this.getHandle().worldObj, new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ())));
+        this.getHandle().displayGui(new BlockWorkbench.InterfaceCraftingTable(this.getHandle().world, new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ())));
         if (force) {
         	((CBContainer)this.getHandle().openContainer).checkReachable = false;
         }
@@ -379,7 +380,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
         if (location == null) {
             location = this.getLocation();
         }
-        TileEntity container = this.getHandle().worldObj.getTileEntity(new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+        TileEntity container = this.getHandle().world.getTileEntity(new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
         if (container == null && force) {
             container = new TileEntityEnchantmentTable();
         }

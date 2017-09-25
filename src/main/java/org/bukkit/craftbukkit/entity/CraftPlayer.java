@@ -122,7 +122,7 @@ import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.bukkit.entity.Player;
 
 @DelegateDeserialization(CraftOfflinePlayer.class)
-public abstract class CraftPlayer extends CraftHumanEntity implements Player
+public class CraftPlayer extends CraftHumanEntity implements Player
 {
     private long firstPlayed;
     private long lastPlayed;

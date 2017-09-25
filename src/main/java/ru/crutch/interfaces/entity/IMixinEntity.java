@@ -9,6 +9,8 @@ import org.bukkit.projectiles.ProjectileSource;
 
 public interface IMixinEntity {
 
+    boolean getValid();
+
     EntityDataManager getDataManager();
 
     void setForceExplosionKnockback(boolean flag);
