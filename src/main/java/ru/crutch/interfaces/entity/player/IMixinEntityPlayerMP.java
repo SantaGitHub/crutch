@@ -1,11 +1,20 @@
 package ru.crutch.interfaces.entity.player;
 
+import net.minecraft.util.text.ITextComponent;
+import org.bukkit.Location;
 import org.bukkit.WeatherType;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 
 import ru.crutch.interfaces.entity.IMixinEntity;
 
 public interface IMixinEntityPlayerMP extends IMixinEntity {
+
+    String getdisplayName();
+    void setdisplayName(String name);
+    ITextComponent getListName();
+    void setListName(ITextComponent listName);
+    Location getCompassTarget();
+    void setCompassTarget(Location loc);
 
     long getPlayerTime();
 

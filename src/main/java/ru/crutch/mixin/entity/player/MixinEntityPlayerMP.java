@@ -5,7 +5,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.server.SPacketChangeGameState;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import org.bukkit.Location;
 import org.bukkit.WeatherType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,6 +23,10 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements IMixin
 		super(worldIn, gameProfileIn);
 	}
 
+
+	public String displayName;
+    public ITextComponent listName;
+    public Location compassTarget;
 	public long timeOffset = 0;
 	public boolean relativeTime = true;
 	public World world;
@@ -29,6 +35,31 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements IMixin
 	public NetHandlerPlayServer connection;
 	private float pluginRainPosition;
 	private float pluginRainPositionPrevious;
+
+	@Override
+	public String getdisplayName(){
+		return this.displayName;
+	}
+	@Override
+	public void setdisplayName(String name){
+		this.displayName = name;
+	}
+	@Override
+	public ITextComponent getListName(){
+		return this.listName;
+	}
+	@Override
+	public void setListName(ITextComponent listName){
+		this.listName = listName;
+	}
+	@Override
+	public Location getCompassTarget(){
+		return this.compassTarget;
+	}
+	@Override
+	public void setCompassTarget(Location loc){
+		this.compassTarget = loc;
+	}
 
 	@Override
 	public long getPlayerTime() {

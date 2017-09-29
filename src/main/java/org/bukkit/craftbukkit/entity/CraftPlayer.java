@@ -235,17 +235,17 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     
     @Override
     public String getDisplayName() {
-        return this.getHandle().displayName;
+        return ((IMixinEntityPlayerMP) this.getHandle()).getdisplayName();
     }
     
     @Override
     public void setDisplayName(final String name) {
-        this.getHandle().displayName = ((name == null) ? this.getName() : name);
+        ((IMixinEntityPlayerMP) this.getHandle()).setdisplayName(((name == null) ? this.getName() : name));
     }
     
     @Override
     public String getPlayerListName() {
-        return (this.getHandle().listName == null) ? this.getName() : CraftChatMessage.fromComponent(this.getHandle().listName);
+        return (((IMixinEntityPlayerMP) this.getHandle()).getListName() == null) ? this.getName() : CraftChatMessage.fromComponent(((IMixinEntityPlayerMP) this.getHandle()).getListName());
     }
     
     @Override
@@ -253,7 +253,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
         if (name == null) {
             name = this.getName();
         }
-        this.getHandle().listName = (name.equals(this.getName()) ? null : CraftChatMessage.fromString(name)[0]);
+        ((IMixinEntityPlayerMP) this.getHandle()).setListName((name.equals(this.getName()) ? null : CraftChatMessage.fromString(name)[0]));
         for (final EntityPlayerMP player : this.server.getHandle().playerEntityList) {
             if (((IMixinEntityPlayerMP)player).getBukkitEntity().canSee(this)) {
                 player.connection.sendPacket(new SPacketPlayerListItem(SPacketPlayerListItem.Action.UPDATE_DISPLAY_NAME, new EntityPlayerMP[] { this.getHandle() }));
@@ -283,7 +283,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
         if (this.getHandle().connection == null) {
             return;
         }
-        this.getHandle().connection.kickPlayerFromServer((message == null) ? "" : message);
+        this.getHandle().connection.disconnect((message == null) ? "" : message);
     }
     
     @Override
@@ -296,7 +296,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     
     @Override
     public Location getCompassTarget() {
-        return this.getHandle().compassTarget;
+        return ((IMixinEntityPlayerMP) this.getHandle()).getCompassTarget();
     }
     
     @Override
