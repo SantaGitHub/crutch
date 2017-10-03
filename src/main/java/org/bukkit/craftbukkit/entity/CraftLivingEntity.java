@@ -84,7 +84,7 @@ import ru.crutch.interfaces.entity.projectile.IMixinEntityFireball;
 import ru.crutch.interfaces.entity.projectile.IMixinEntityTippedArrow;
 import ru.crutch.interfaces.world.IMixinWorld;
 
-public abstract class CraftLivingEntity extends CraftEntity implements LivingEntity
+public class CraftLivingEntity extends CraftEntity implements LivingEntity
 {
     private CraftEntityEquipment equipment;
     
@@ -454,7 +454,7 @@ public abstract class CraftLivingEntity extends CraftEntity implements LivingEnt
     public EntityType getType() {
         return EntityType.UNKNOWN;
     }
-    
+
     @Override
     public boolean hasLineOfSight(final Entity other) {
         return this.getHandle().canEntityBeSeen(((CraftEntity)other).getHandle());

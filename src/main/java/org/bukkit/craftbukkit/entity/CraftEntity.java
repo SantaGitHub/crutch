@@ -724,7 +724,32 @@ public abstract class CraftEntity implements Entity
         }
         return name;
     }
-    
+
+    @Override
+    public int getPortalCooldown() {
+        return getHandle().timeUntilPortal;
+    }
+
+    @Override
+    public void setPortalCooldown(int cooldown) {
+        getHandle().timeUntilPortal = cooldown;
+    }
+
+    @Override
+    public Set<String> getScoreboardTags() {
+        return getHandle().getTags();
+    }
+
+    @Override
+    public boolean addScoreboardTag(String tag) {
+        return getHandle().addTag(tag);
+    }
+
+    @Override
+    public boolean removeScoreboardTag(String tag) {
+        return getHandle().removeTag(tag);
+    }
+
     @Override
     public void setCustomNameVisible(final boolean flag) {
         this.getHandle().setAlwaysRenderNameTag(flag);

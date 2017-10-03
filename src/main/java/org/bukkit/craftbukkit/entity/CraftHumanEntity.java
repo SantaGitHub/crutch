@@ -60,7 +60,7 @@ import org.bukkit.craftbukkit.inventory.CraftInventoryPlayer;
 import org.bukkit.entity.HumanEntity;
 import ru.crutch.inventory.ICBInventory;
 
-public abstract class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
+public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
 {
     private CraftInventoryPlayer inventory;
     private final CraftInventory enderChest;
@@ -443,7 +443,12 @@ public abstract class CraftHumanEntity extends CraftLivingEntity implements Huma
     public boolean isBlocking() {
         return this.getHandle().isActiveItemStackBlocking();
     }
-    
+
+    @Override
+    public boolean isHandRaised() {
+        return getHandle().isHandActive();
+    }
+
     @Override
     public boolean setWindowProperty(final InventoryView.Property prop, final int value) {
         return false;

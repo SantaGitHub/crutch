@@ -62,6 +62,7 @@ import org.bukkit.Achievement;
 import net.minecraft.world.WorldServer;
 import ru.crutch.interfaces.entity.IMixinEntity;
 import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
+import ru.crutch.interfaces.network.IMixinNetHandlerPlayServer;
 import ru.crutch.inventory.CBContainer;
 
 import org.bukkit.event.Event;
@@ -304,7 +305,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
         if (this.getHandle().connection == null) {
             return;
         }
-        this.getHandle().connection.chat(msg, false);
+        ((IMixinNetHandlerPlayServer) this.getHandle().connection).chat(msg, false);
     }
     
     @Override
@@ -520,7 +521,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
             entity.connection.teleport(to);
         }
         else {
-            this.server.getHandle().moveToWorld(entity, toWorld.dimension, true, to, true);
+            this.server.getHandle().moveToWorld(entity, toWorld.provider.getDimension(), true, to, true);
         }
         return true;
     }
@@ -738,12 +739,12 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     
     @Override
     public long getPlayerTime() {
-        return this.getHandle().getPlayerTime();
+        return ((IMixinEntityPlayerMP) this.getHandle()).getPlayerTime();
     }
     
     @Override
     public boolean isPlayerTimeRelative() {
-        return this.getHandle().relativeTime;
+        return ((IMixinEntityPlayerMP) this.getHandle()).relativeTime;
     }
     
     @Override
@@ -753,17 +754,17 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     
     @Override
     public void setPlayerWeather(final WeatherType type) {
-        this.getHandle().setPlayerWeather(type, true);
+        ((IMixinEntityPlayerMP) this.getHandle()).setPlayerWeather(type, true);
     }
     
     @Override
     public WeatherType getPlayerWeather() {
-        return this.getHandle().getPlayerWeather();
+        return ((IMixinEntityPlayerMP) this.getHandle()).getPlayerWeather();
     }
     
     @Override
     public void resetPlayerWeather() {
-        this.getHandle().resetPlayerWeather();
+        ((IMixinEntityPlayerMP) this.getHandle()).resetPlayerWeather();
     }
     
     @Override
@@ -780,13 +781,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player
             this.server.getBanList(BanList.Type.NAME).pardon(this.getName());
         }
     }
-    
-    @Override
+
+    @Override @SideOnly(Side.SERVER)
     public boolean isWhitelisted() {
         return this.server.getHandle().getWhitelistedPlayers().isWhitelisted(this.getProfile());
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public void setWhitelisted(final boolean value) {
         if (value) {
             this.server.getHandle().addWhitelistedPlayer(this.getProfile());
