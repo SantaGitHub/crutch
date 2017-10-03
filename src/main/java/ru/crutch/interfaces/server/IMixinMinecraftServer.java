@@ -9,7 +9,11 @@ import org.bukkit.craftbukkit.CraftServer;
 import joptsimple.OptionSet;
 
 public interface IMixinMinecraftServer {
-	org.bukkit.command.ConsoleCommandSender getConsole();
+	Thread getPrimaryThread();
+
+	java.util.Queue<Runnable> getProcessQueue();
+
+    org.bukkit.command.ConsoleCommandSender getConsole();
 	CraftServer getServer();
 	OptionSet getOptionSet();
 	PropertyManager getPropertyManager();

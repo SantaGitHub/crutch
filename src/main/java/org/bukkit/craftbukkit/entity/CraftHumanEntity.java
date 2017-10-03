@@ -1,7 +1,3 @@
-// 
-// Decompiled by Procyon v0.5.30
-// 
-
 package org.bukkit.craftbukkit.entity;
 
 import net.minecraft.entity.passive.EntityVillager;
@@ -27,6 +23,7 @@ import org.bukkit.craftbukkit.inventory.CraftContainer;
 import net.minecraft.inventory.Container;
 import org.bukkit.event.inventory.InventoryType;
 import net.minecraft.world.IInteractionObject;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 import ru.crutch.inventory.CBContainer;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.tileentity.TileEntityBeacon;
@@ -337,7 +334,7 @@ public abstract class CraftHumanEntity extends CraftLivingEntity implements Huma
         if (player.connection == null) {
             return;
         }
-        CBContainer container = new CraftContainer(inventory, this, player.nextContainerCounter());
+        CBContainer container = new CraftContainer(inventory, this, ((IMixinEntityPlayerMP) player).nextContainerCounter());
         container = (CBContainer) CraftEventFactory.callInventoryOpenEvent(player, container);
         if (container == null) {
             return;
@@ -408,7 +405,7 @@ public abstract class CraftHumanEntity extends CraftLivingEntity implements Huma
             container = ((CraftInventoryView)inventory).getHandle();
         }
         else {
-            container = new CraftContainer(inventory, player.nextContainerCounter());
+            container = new CraftContainer(inventory, ((IMixinEntityPlayerMP) player).nextContainerCounter());
         }
         container = CraftEventFactory.callInventoryOpenEvent(player, container);
         if (container == null) {

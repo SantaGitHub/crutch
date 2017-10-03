@@ -33,8 +33,17 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements IMixin
 	public WeatherType weather = null;
 	@Shadow
 	public NetHandlerPlayServer connection;
+	@Shadow
+	public int currentWindowId;
 	private float pluginRainPosition;
 	private float pluginRainPositionPrevious;
+
+
+	@Override
+	public int nextContainerCounter(){
+		this.currentWindowId = this.currentWindowId % 100 + 1;
+		return this.currentWindowId;
+	}
 
 	@Override
 	public String getdisplayName(){

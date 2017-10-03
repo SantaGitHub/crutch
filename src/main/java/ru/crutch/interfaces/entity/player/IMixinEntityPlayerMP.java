@@ -9,6 +9,8 @@ import ru.crutch.interfaces.entity.IMixinEntity;
 
 public interface IMixinEntityPlayerMP extends IMixinEntity {
 
+    int nextContainerCounter();
+
     String getdisplayName();
     void setdisplayName(String name);
     ITextComponent getListName();

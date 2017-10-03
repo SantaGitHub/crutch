@@ -99,6 +99,7 @@ import net.minecraft.entity.EntityTracker;
 import net.minecraft.world.storage.WorldInfo;
 import ru.crutch.interfaces.entity.IMixinEntity;
 import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
+import ru.crutch.interfaces.item.crafting.IMixinFurnaceRecipes;
 import ru.crutch.interfaces.server.IMixinMinecraftServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.GameType;
@@ -1138,18 +1139,19 @@ public final class CraftServer implements Server
     
     @Override
     public void clearRecipes() {
-        CraftingManager.getInstance().getRecipeList().clear();
-        FurnaceRecipes.instance().getSmeltingList().clear();
-        FurnaceRecipes.instance().customRecipes.clear();
-        FurnaceRecipes.instance().customExperience.clear();
+        CraftingManager.getInstance().recipes.clear();
+        FurnaceRecipes.instance().smeltingList.clear();
+        ((IMixinFurnaceRecipes) FurnaceRecipes.instance()).getCustomRecipes().clear();
+        ((IMixinFurnaceRecipes) FurnaceRecipes.instance()).getCustomExperience().clear();
+        //TODO Возможно неправильно работает очистка и сброс рецептов крафта
     }
     
     @Override
     public void resetRecipes() {
-        CraftingManager.getInstance().getRecipeList().addAll(CraftingManager.getInstance().getRecipeList());
-        FurnaceRecipes.instance().getSmeltingList() = new FurnaceRecipes().smeltingList;
-        FurnaceRecipes.instance().customRecipes.clear();
-        FurnaceRecipes.instance().customExperience.clear();
+        CraftingManager.getInstance().recipes = CraftingManager.getInstance().getRecipeList();
+        FurnaceRecipes.instance().smeltingList = FurnaceRecipes.instance().smeltingList;
+        ((IMixinFurnaceRecipes) FurnaceRecipes.instance()).getCustomRecipes().clear();
+        ((IMixinFurnaceRecipes) FurnaceRecipes.instance()).getCustomExperience().clear();
     }
     
     @Override
@@ -1185,7 +1187,7 @@ public final class CraftServer implements Server
         return this.configuration.getString("settings.shutdown-message");
     }
     
-    @Override
+    @Override @SideOnly(Side.SERVER)
     public int getSpawnRadius() {
         return ((DedicatedServer)this.console).settings.getIntProperty("spawn-protection", 16);
     }
@@ -1354,8 +1356,8 @@ public final class CraftServer implements Server
     @Override
     public Set<OfflinePlayer> getBannedPlayers() {
         final Set<OfflinePlayer> result = new HashSet<OfflinePlayer>();
-        for ( final UserListEntry<GameProfile> entry : ((IMixinUserList) this.playerList.getBannedPlayers()).getValuesCB()) {
-            result.add(this.getOfflinePlayer(entry.getValue()));
+        for (final Object entry : ((IMixinUserList)  this.playerList.getBannedPlayers()).getValuesCB()) {
+            result.add(this.getOfflinePlayer(((UserListEntry<GameProfile>) entry).getValue()));
         }
         return result;
     }
@@ -1382,8 +1384,8 @@ public final class CraftServer implements Server
     @Override
     public Set<OfflinePlayer> getWhitelistedPlayers() {
         final Set<OfflinePlayer> result = new LinkedHashSet<OfflinePlayer>();
-        for (final UserListEntry<GameProfile> entry : (/*(UserList<K, UserListWhitelistEntry>)*/this.playerList.getWhitelistedPlayers()).getValuesCB()) {
-            result.add(this.getOfflinePlayer(entry.getValue()));
+        for (final Object entry : ((IMixinUserList) this.playerList.getWhitelistedPlayers()).getValuesCB()) {
+            result.add(this.getOfflinePlayer(((UserListEntry<GameProfile>) entry).getValue()));
         }
         return result;
     }
@@ -1391,8 +1393,8 @@ public final class CraftServer implements Server
     @Override
     public Set<OfflinePlayer> getOperators() {
         final Set<OfflinePlayer> result = new HashSet<OfflinePlayer>();
-        for (final UserListEntry<GameProfile> entry : ((IMixinUserList)this.playerList.getOppedPlayers()).getValuesCB()) {
-            result.add(this.getOfflinePlayer(entry.getValue()));
+        for (final Object entry : ((IMixinUserList)this.playerList.getOppedPlayers()).getValuesCB()) {
+            result.add(this.getOfflinePlayer(((UserListEntry<GameProfile>) entry).getValue()));
         }
         return result;
     }
@@ -1535,7 +1537,7 @@ public final class CraftServer implements Server
     
     @Override
     public boolean isPrimaryThread() {
-        return Thread.currentThread().equals(this.console.primaryThread);
+        return Thread.currentThread().equals(((IMixinMinecraftServer) this.console).getPrimaryThread());
     }
     
     @Override

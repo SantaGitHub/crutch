@@ -97,6 +97,9 @@ public class MixinNetHandlerPlayServer implements IMixinNetHandlerPlayServer {
         }
     }
 
-    private abstract void handleSlashCommand(String s) {
+    private void handleSlashCommand(String s) {
     }
+
+
+
 }
