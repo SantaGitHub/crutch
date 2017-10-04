@@ -13,7 +13,7 @@ import ru.crutch.interfaces.world.IMixinWorld;
 import ru.crutch.interfaces.world.IMixinWorldServer;
 
 @Mixin(WorldServer.class)
-public abstract class MixinWorldServer implements IMixinWorldServer {
+public abstract class MixinWorldServer extends MixinWorld implements IMixinWorldServer {
 
 
 

@@ -56,4 +56,5 @@ public interface IMixinWorld {
     void setKeepSpawnInMemory(boolean flag);
 
 
+    void checkSleepStatus();
 }

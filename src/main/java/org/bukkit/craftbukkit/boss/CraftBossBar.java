@@ -21,6 +21,7 @@ import org.bukkit.boss.BarFlag;
 import java.util.Set;
 import net.minecraft.world.BossInfoServer;
 import org.bukkit.boss.BossBar;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 
 public class CraftBossBar implements BossBar
 {
@@ -145,7 +146,7 @@ public class CraftBossBar implements BossBar
     public List<Player> getPlayers() {
         final ImmutableList.Builder<Player> players = /*(ImmutableList.Builder<Player>)*/ImmutableList.builder();
         for (final EntityPlayerMP p : this.handle.getPlayers()) {
-            players.add(p.getBukkitEntity());
+            players.add(((IMixinEntityPlayerMP) p).getBukkitEntity());
         }
         return (List<Player>)players.build();
     }

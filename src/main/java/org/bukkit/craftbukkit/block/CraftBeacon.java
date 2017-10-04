@@ -6,6 +6,7 @@ package org.bukkit.craftbukkit.block;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.potion.Potion;
+import net.minecraft.world.LockCode;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffect;
 import java.util.Iterator;
@@ -20,6 +21,8 @@ import org.bukkit.block.Block;
 import net.minecraft.tileentity.TileEntityBeacon;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.block.Beacon;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
+import ru.crutch.interfaces.tileentity.IMixinTileEntityBeacon;
 
 public class CraftBeacon extends CraftBlockState implements Beacon
 {
@@ -59,10 +62,10 @@ public class CraftBeacon extends CraftBlockState implements Beacon
     
     @Override
     public Collection<LivingEntity> getEntitiesInRange() {
-        final Collection<EntityPlayer> nms = (Collection<EntityPlayer>)this.beacon.getHumansInRange();
+        final Collection<EntityPlayer> nms = ((IMixinTileEntityBeacon) (Collection<EntityPlayer>)this.beacon).getHumansInRange();
         final Collection<LivingEntity> bukkit = new ArrayList<LivingEntity>(nms.size());
         for (final EntityPlayer human : nms) {
-            bukkit.add(human.getBukkitEntity());
+            bukkit.add(((IMixinEntityPlayerMP) human).getBukkitEntity());
         }
         return bukkit;
     }
@@ -74,7 +77,7 @@ public class CraftBeacon extends CraftBlockState implements Beacon
     
     @Override
     public PotionEffect getPrimaryEffect() {
-        return this.beacon.getPrimaryEffect();
+        return ((IMixinTileEntityBeacon) this.beacon).getPrimaryEffect();
     }
     
     @Override
@@ -84,11 +87,26 @@ public class CraftBeacon extends CraftBlockState implements Beacon
     
     @Override
     public PotionEffect getSecondaryEffect() {
-        return this.beacon.getSecondaryEffect();
+        return ((IMixinTileEntityBeacon) this.beacon).getSecondaryEffect();
     }
     
     @Override
     public void setSecondaryEffect(final PotionEffectType effect) {
         this.beacon.secondaryEffect = ((effect != null) ? Potion.getPotionById(effect.getId()) : null);
+    }
+
+    @Override
+    public boolean isLocked() {
+        return beacon.isLocked();
+    }
+
+    @Override
+    public String getLock() {
+        return beacon.getLockCode().getLock();
+    }
+
+    @Override
+    public void setLock(String key) {
+        beacon.setLockCode(key == null ? LockCode.EMPTY_CODE : new LockCode(key));
     }
 }

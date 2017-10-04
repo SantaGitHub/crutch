@@ -61,8 +61,11 @@ import org.bukkit.craftbukkit.CraftStatistic;
 import org.bukkit.Achievement;
 import net.minecraft.world.WorldServer;
 import ru.crutch.interfaces.entity.IMixinEntity;
+import ru.crutch.interfaces.entity.IMixinEntityLivingBase;
 import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 import ru.crutch.interfaces.network.IMixinNetHandlerPlayServer;
+import ru.crutch.interfaces.world.IMixinWorld;
+import ru.crutch.interfaces.world.IMixinWorldServer;
 import ru.crutch.inventory.CBContainer;
 
 import org.bukkit.event.Event;
@@ -564,13 +567,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     
     @Override
     public void setSleepingIgnored(final boolean isSleeping) {
-        this.getHandle().fauxSleeping = isSleeping;
-        ((CraftWorld)this.getWorld()).getHandle().checkSleepStatus();
+        ((IMixinEntityPlayerMP) this.getHandle()).setFauxSleeping(isSleeping);
+        ((IMixinWorldServer) ((CraftWorld)this.getWorld()).getHandle()).checkSleepStatus();
     }
     
     @Override
     public boolean isSleepingIgnored() {
-        return this.getHandle().fauxSleeping;
+        return ((IMixinEntityPlayerMP) this.getHandle()).getFauxSleeping();
     }
     
     @Override
@@ -728,13 +731,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     
     @Override
     public void setPlayerTime(final long time, final boolean relative) {
-        this.getHandle().timeOffset = time;
-        this.getHandle().relativeTime = relative;
+        ((IMixinEntityPlayerMP) this.getHandle()).setTimeOffset(time);
+        ((IMixinEntityPlayerMP) this.getHandle()).setRelativeTime(relative);
     }
     
     @Override
     public long getPlayerTimeOffset() {
-        return this.getHandle().timeOffset;
+        return ((IMixinEntityPlayerMP) this.getHandle()).getTimeOffset();
     }
     
     @Override
@@ -744,7 +747,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     
     @Override
     public boolean isPlayerTimeRelative() {
-        return ((IMixinEntityPlayerMP) this.getHandle()).relativeTime;
+        return ((IMixinEntityPlayerMP) this.getHandle()).getRelativeTime();
     }
     
     @Override
@@ -897,7 +900,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     
     @Override
     public Location getBedSpawnLocation() {
-        final org.bukkit.World world = this.getServer().getWorld(this.getHandle().spawnWorld);
+        final org.bukkit.World world = this.getServer().getWorld(((IMixinEntityPlayerMP) this.getHandle()).getSpawnWorld());
         BlockPos bed = this.getHandle().getBedLocation();
         if (world != null && bed != null) {
             bed = EntityPlayer.getBedSpawnLocation(((CraftWorld)world).getHandle(), bed, this.getHandle().isSpawnForced());
@@ -920,7 +923,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
         }
         else {
             this.getHandle().setSpawnPoint(new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()), override);
-            this.getHandle().spawnWorld = location.getWorld().getName();
+            ((IMixinEntityPlayerMP) this.getHandle()).setSpawnWorld(location.getWorld().getName());
         }
     }
     
@@ -937,7 +940,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
             return;
         }
         this.hiddenPlayers.add(player.getUniqueId());
-        final EntityTracker tracker = ((WorldServer)this.entity.worldObj).theEntityTracker;
+        final EntityTracker tracker = ((WorldServer)this.entity.world).theEntityTracker;
         final EntityPlayerMP other = ((CraftPlayer)player).getHandle();
         final EntityTrackerEntry entry = tracker.trackedEntityHashTable.lookup(other.getEntityId());
         if (entry != null) {
@@ -959,7 +962,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
             return;
         }
         this.hiddenPlayers.remove(player.getUniqueId());
-        final EntityTracker tracker = ((WorldServer)this.entity.worldObj).theEntityTracker;
+        final EntityTracker tracker = ((WorldServer)this.entity.world).theEntityTracker;
         final EntityPlayerMP other = ((CraftPlayer)player).getHandle();
         this.getHandle().connection.sendPacket(new SPacketPlayerListItem(SPacketPlayerListItem.Action.ADD_PLAYER, new EntityPlayerMP[] { other }));
         final EntityTrackerEntry entry = tracker.trackedEntityHashTable.lookup(other.getEntityId());
@@ -1040,11 +1043,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player
             }
             if (data.hasKey("newExp")) {
                 final EntityPlayerMP handle = this.getHandle();
-                handle.newExp = data.getInteger("newExp");
-                handle.newTotalExp = data.getInteger("newTotalExp");
-                handle.newLevel = data.getInteger("newLevel");
-                handle.expToDrop = data.getInteger("expToDrop");
-                handle.keepLevel = data.getBoolean("keepLevel");
+                ((IMixinEntityPlayerMP) handle).setNewExp(data.getInteger("newExp"));
+                ((IMixinEntityPlayerMP) handle).setNewTotalExp(data.getInteger("newTotalExp"));
+                ((IMixinEntityPlayerMP) handle).setNewLevel(data.getInteger("newLevel"));
+                ((IMixinEntityLivingBase) handle).setExpToDrop(data.getInteger("expToDrop"));
+                ((IMixinEntityPlayerMP) handle).setKeepLevel(data.getBoolean("keepLevel"));
             }
         }
     }
@@ -1055,11 +1058,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player
         }
         final NBTTagCompound data = nbttagcompound.getCompoundTag("bukkit");
         final EntityPlayerMP handle = this.getHandle();
-        data.setInteger("newExp", handle.newExp);
-        data.setInteger("newTotalExp", handle.newTotalExp);
-        data.setInteger("newLevel", handle.newLevel);
-        data.setInteger("expToDrop", handle.expToDrop);
-        data.setBoolean("keepLevel", handle.keepLevel);
+        data.setInteger("newExp", ((IMixinEntityPlayerMP) handle).getNewExp());
+        data.setInteger("newTotalExp", ((IMixinEntityPlayerMP) handle).getNewTotalExp());
+        data.setInteger("newLevel", ((IMixinEntityPlayerMP) handle).getNewLevel());
+        data.setInteger("expToDrop", ((IMixinEntityLivingBase) handle).getExpToDrop());
+        data.setBoolean("keepLevel", ((IMixinEntityPlayerMP) handle).getKeepLevel());
         data.setLong("firstPlayed", this.getFirstPlayed());
         data.setLong("lastPlayed", System.currentTimeMillis());
         data.setString("lastKnownName", handle.getName());
@@ -1288,7 +1291,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
         if (playerConnection == null) {
             throw new IllegalStateException("Cannot set scoreboard yet");
         }
-        if (playerConnection.isDisconnected()) {
+        if (((IMixinNetHandlerPlayServer) playerConnection).isDisconnected()) {
             throw new IllegalStateException("Cannot set scoreboard for invalid CraftPlayer");
         }
         this.server.getScoreboardManager().setPlayerBoard(this, scoreboard);
@@ -1341,7 +1344,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
         this.getHandle().getDataManager().set(EntityLivingBase.HEALTH, this.getScaledHealth());
         this.sendHealthUpdate();
         this.getHandle().connection.sendPacket(new SPacketEntityProperties(this.getHandle().getEntityId(), set));
-        this.getHandle().maxHealthCache = this.getMaxHealth();
+        ((IMixinEntityPlayerMP) this.getHandle()).setMaxHealthCache(this.getMaxHealth());
     }
     
     public void sendHealthUpdate() {
@@ -1354,7 +1357,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
         }
         for (final Object genericInstance : collection) {
             final IAttribute attribute = ((IAttributeInstance)genericInstance).getAttribute();
-            if (attribute.getAttributeUnlocalizedName().equals("generic.maxHealth")) {
+            if (attribute.getName().equals("generic.maxHealth")) {
                 collection.remove(genericInstance);
                 break;
             }
@@ -1365,7 +1368,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player
     @Override
     public org.bukkit.entity.Entity getSpectatorTarget() {
         final net.minecraft.entity.Entity followed = this.getHandle().getSpectatingEntity();
-        return (followed == this.getHandle()) ? null : followed.getBukkitEntity();
+        return (followed == this.getHandle()) ? null : ((IMixinEntityPlayerMP) followed).getBukkitEntity();
     }
     
     @Override

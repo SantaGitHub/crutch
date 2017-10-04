@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import com.mojang.authlib.GameProfile;
 
+import ru.crutch.interfaces.entity.IMixinEntityLivingBase;
 import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 
 @Mixin(EntityPlayerMP.class)
@@ -21,9 +22,20 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements IMixin
 
 	public MixinEntityPlayerMP(World worldIn, GameProfile gameProfileIn) {
 		super(worldIn, gameProfileIn);
+		this.displayName = this.getName();
+		this.maxHealthCache = this.getMaxHealth();
+
 	}
 
+	private int newExp = 0;
+	private int newLevel = 0;
+	private int newTotalExp = 0;
+	private boolean keepLevel = false;
+	private double maxHealthCache;
+	private boolean joining = true;
 
+	public String spawnWorld = "";
+	public boolean fauxSleeping;
 	public String displayName;
     public ITextComponent listName;
     public Location compassTarget;
@@ -38,6 +50,74 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements IMixin
 	private float pluginRainPosition;
 	private float pluginRainPositionPrevious;
 
+	@Override
+	public void setNewExp(int i){
+		this.newExp = i;
+	}
+	@Override
+	public void setNewLevel(int i){
+		this.newLevel = i;
+	}
+	@Override
+	public void setNewTotalExp(int i){
+		this.newTotalExp = i;
+	}
+	@Override
+	public void setKeepLevel(boolean flag){
+		this.keepLevel = flag;
+	}
+	@Override
+	public int getNewExp(){
+		return this.newExp;
+	}
+	@Override
+	public int getNewLevel(){
+		return this.newLevel;
+	}
+	@Override
+	public int getNewTotalExp(){
+		return this.newTotalExp;
+	}
+	@Override
+	public boolean getKeepLevel(){
+		return this.keepLevel;
+	}
+
+
+	@Override
+	public void setSpawnWorld(String world){
+		this.spawnWorld = world;
+	}
+	@Override
+	public String getSpawnWorld(){
+		return this.spawnWorld;
+	}
+
+	@Override
+	public boolean getFauxSleeping(){
+		return this.fauxSleeping;
+	}
+	@Override
+	public void setFauxSleeping(boolean flag){
+		this.fauxSleeping = flag;
+	}
+
+	@Override
+	public long getTimeOffset(){
+		return this.timeOffset;
+	}
+	@Override
+	public boolean getRelativeTime(){
+		return this.relativeTime;
+	}
+	@Override
+	public void setTimeOffset(long time){
+		this.timeOffset = time;
+	}
+	@Override
+	public void setRelativeTime(boolean flag){
+		this.relativeTime = flag;
+	}
 
 	@Override
 	public int nextContainerCounter(){
@@ -145,5 +225,21 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements IMixin
 	public void resetPlayerWeather() {
 		this.weather = null;
 		this.setPlayerWeather(this.world.getWorldInfo().isRaining() ? WeatherType.DOWNFALL : WeatherType.CLEAR, false);
+	}
+	@Override
+	public double getMaxHealthCache() {
+		return maxHealthCache;
+	}
+	@Override
+	public void setMaxHealthCache(double maxHealthCache) {
+		this.maxHealthCache = maxHealthCache;
+	}
+	@Override
+	public boolean isJoining() {
+		return joining;
+	}
+	@Override
+	public void setJoining(boolean joining) {
+		this.joining = joining;
 	}
 }

@@ -10,6 +10,7 @@ import ru.crutch.interfaces.entity.IMixinEntityLivingBase;
 @Mixin(EntityLivingBase.class)
 public abstract class MixinEntityLivingBase extends Entity implements IMixinEntityLivingBase{
 
+    private int expToDrop;
     public CraftAttributeMap craftAttributes;
     public int maxAirTicks = 300;
     public boolean collides = true;
@@ -41,5 +42,14 @@ public abstract class MixinEntityLivingBase extends Entity implements IMixinEnti
 
     public MixinEntityLivingBase(World worldIn) {
         super(worldIn);
+    }
+
+    @Override
+    public int getExpToDrop() {
+        return expToDrop;
+    }
+    @Override
+    public void setExpToDrop(int expToDrop) {
+        this.expToDrop = expToDrop;
     }
 }

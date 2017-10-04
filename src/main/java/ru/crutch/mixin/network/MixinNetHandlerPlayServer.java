@@ -3,6 +3,7 @@ package ru.crutch.mixin.network;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.util.CraftChatMessage;
@@ -13,6 +14,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import ru.crutch.interfaces.entity.player.IMixinEntityPlayerMP;
 import ru.crutch.interfaces.network.IMixinNetHandlerPlayServer;
 
 import java.util.concurrent.ExecutionException;
@@ -23,6 +25,7 @@ public class MixinNetHandlerPlayServer implements IMixinNetHandlerPlayServer {
     private EntityPlayerMP playerEntity;
     @Shadow
     private MinecraftServer serverController;
+    @Shadow private NetworkManager netManager;
 
     @Override
     public void chat(String s, boolean async) {
@@ -100,6 +103,9 @@ public class MixinNetHandlerPlayServer implements IMixinNetHandlerPlayServer {
     private void handleSlashCommand(String s) {
     }
 
-
+    @Override
+    public final boolean isDisconnected() {
+        return !((IMixinEntityPlayerMP) playerEntity).isJoining() && !this.netManager.isChannelOpen();
+    }
 
 }

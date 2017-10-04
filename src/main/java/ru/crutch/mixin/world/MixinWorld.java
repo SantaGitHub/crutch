@@ -41,6 +41,7 @@ public abstract class MixinWorld implements IMixinWorld{
     @Shadow
     protected IChunkProvider chunkProvider;
     private boolean pvpMode;
+    @Shadow private boolean isRemote;
 
     @Shadow
     protected abstract IChunkProvider createChunkProvider();
@@ -301,4 +302,10 @@ public abstract class MixinWorld implements IMixinWorld{
         return (org.bukkit.block.Block)this.iblockstate.getBlock();
     }
 
+    @Override
+    public void checkSleepStatus() {
+        if (!this.isRemote) {
+            ((World)(IMixinWorld) this).updateAllPlayersSleepingFlag();
+        }
+    }
 }

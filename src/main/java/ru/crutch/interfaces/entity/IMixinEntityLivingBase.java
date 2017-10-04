@@ -9,4 +9,8 @@ public interface IMixinEntityLivingBase extends IMixinEntity{
     CraftAttributeMap getCraftAttributes();
     int getMaxAirTicks();
     void setMaxAirTicks(int i);
+
+    int getExpToDrop();
+
+    void setExpToDrop(int expToDrop);
 }
